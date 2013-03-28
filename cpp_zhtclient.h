@@ -32,10 +32,8 @@ public:
 	// Matrix client functions
 	struct HostEntity index2Host(int index);
 	int index2SockLRU(int index, bool tcp);
-	int32_t insertqueue(string str, int size); 	// insert jobs into ready queue
-	int32_t insertqueue_cstr(void *c_str, int size);
-	int32_t svrtosvr(string str, int size, int index); 	// general server to server send (for load information and task stealing)
-	int32_t svrtosvr_cstr(void *c_str, int size, int index);
+	int32_t send(string str, int size); 		   // general send
+	int32_t svrtosvr(string str, int size, int index); // send to specific server
 
 private:
 	static int UDP_SOCKET;

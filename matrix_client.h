@@ -17,11 +17,11 @@ typedef map<int, string> AdjListString; 	// vertex ---> list of vertices delimit
 typedef pair<int, string> TaskDAG_Value;	// mapping info of each vertex in DAG
 typedef map<int, TaskDAG_Value> TaskDAG;	// vertex ---> indegree of vertex, adjlist in string format as above
 
-void get_adjlist(int num_tasks, AdjList &adj_list);
+void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice);
 void print_AdjList(AdjList &adj_list);
-int get_DAG(AdjList &adj_list, TaskDAG &dag);
+int get_DAG(AdjList &adj_list, TaskDAG &dag, string clientid);
 void print_DAG(TaskDAG &dag);
-TaskDAG generate_DAG(int &num_tasks, int &num_nodes);
+TaskDAG generate_DAG(int &num_tasks, int &num_nodes, string clientid, int DAG_choice);
 
 class MATRIXClient {
 
@@ -37,7 +37,7 @@ public:
 	vector<string> task_str_list; 
 
 	int init(int num_tasks, int numSleep, ZHTClient &clientRet, int log, int index);	
-	int initializeTasks(int num_tasks, int numSleep, int mode, int max_tasks_per_package, ZHTClient &clientRet);
+	int initializeTasks(int num_tasks, int numSleep, int mode, int max_tasks_per_package, ZHTClient &clientRet, int DAG_choice);
 	pthread_t monitor(int num_tasks, ZHTClient &clientRet);
 };
 

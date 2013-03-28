@@ -291,8 +291,7 @@ int ZHTClient::insert(string str) {
 	int sentSize = generalSendTo(dest.host.data(), dest.port, sock, c_str, len, TCP);
 	//pthread_mutex_unlock(&msg_lock);
 	//int sentSize = generalSendTo(dest.host.data(), dest.port, sock, str.c_str(), str.size(), TCP);
-	cout << "c++ str = " << str << endl;
-	cout <<"Client inseret sent: " << sentSize << " c str = " << c_str << endl;
+//	cout <<"Client inseret sent: "<<sentSize<<endl;
 	int32_t* ret_buf = (int32_t*) malloc(sizeof(int32_t));
 
 //	generalReveiveTCP(sock, (void*) ret_buf, sizeof(int32_t), 0);
@@ -308,7 +307,7 @@ int ZHTClient::insert(string str) {
 	free(ret_buf);
 
 	//return ret_1;
-	cout<<"insert got: "<< ret <<endl;
+//	cout<<"insert got: "<< *ret <<endl;
 	return ret;
 }
 
@@ -377,7 +376,7 @@ int ZHTClient::lookup(string str, string &returnStr) {
 			cout << "Lookup receive error." << endl;
 		} else {
 			//cout << "ZHTClient::lookup: buff = " << buff << " size = " << rcv_size << endl;
-			sRecv.assign(buff); //cout << "ZHTClient::lookup: for key " << package.virtualpath() << endl;//<< " recd = "  << sRecv << endl;
+			sRecv.assign(buff); //cout << "ZHTClient::lookup: for key " << package.virtualpath() << " recd = "  << sRecv << endl;
 			try {
 			returnStr = sRecv.substr(3); //the left is real thing need to be deserilized.
 			}
@@ -538,7 +537,7 @@ int copystring(char *c_str, string str) {
 	return (i+len);
 }
 
-int32_t ZHTClient::insertqueue(string str, int size) {
+int32_t ZHTClient::send(string str, int size) {
 
 	Package package;
 	package.ParseFromString(str);
@@ -546,7 +545,7 @@ int32_t ZHTClient::insertqueue(string str, int size) {
 	char *c_str;
 	c_str = (char*)malloc((size + 5 + 1) * sizeof(char));
 	if(c_str == NULL){
-                cout << "ZHTClient::svrtosvr: " << strerror(errno) << endl;
+                cout << "ZHTClient::send: " << strerror(errno) << endl;
                 exit(1);
         }
 	int len = copystring(c_str, str);

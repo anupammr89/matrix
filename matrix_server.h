@@ -9,6 +9,7 @@
 #include <sstream>
 #include <math.h>
 #include <errno.h>
+#include <algorithm>
 #include "cpp_zhtclient.h"
 #include "matrix_client.h"
 #include "matrix_util.h"
@@ -19,6 +20,14 @@
 
 #define SIXTY_KILOBYTES 61440
 #define STRING_THRESHOLD SIXTY_KILOBYTES
+
+typedef deque<TaskQueue_Item*> TaskQueue;
+typedef deque<string> NodeList;
+typedef pair<string, vector<string> > ComPair;
+typedef deque<ComPair> CompQueue;
+
+//typedef list<TaskQueue_Item*> TaskQueue;
+//typedef list<string> NodeList;
 
 using namespace std;
 
@@ -50,17 +59,24 @@ public:
 	int32_t get_load_info();
 	int32_t get_monitoring_info();
 	int32_t get_numtasks_to_steal();
+
+	int check_if_task_is_ready(string key);
+	int move_task_to_ready_queue(TaskQueue_Item **qi);
+
+	int notify(ComPair &compair);
+
 	string zht_lookup(string key);
 	int zht_insert(string str);
 	int zht_remove(string key);
 	int zht_append(string str);
-	int zht_update(map<uint32_t, deque<string> > &update_map, string field, uint32_t toid);
+	int zht_update(map<uint32_t, NodeList> &update_map, string field, uint32_t toid);
 
 	int update(Package &package);
 	int update_nodehistory(uint32_t currnode, string alltasks);
 	int update_numwait(string alltasks);
 
-	map<uint32_t, deque<string> > get_map(deque<TaskQueue_Item*> &queue);
+	map<uint32_t, NodeList> get_map(TaskQueue &queue);
+	map<uint32_t, NodeList> get_map(vector<string> &mqueue);
 };
 
 extern Worker *worker;
@@ -73,22 +89,30 @@ extern long msg_count[10];
 extern long task_comp_count;
 
 //extern queue<string*> insertq;
+extern queue<string*> waitq;
 extern queue<string*> insertq_new;
 extern queue<int*> migrateq;
 extern bitvec migratev;
 
+extern queue<string*> notifyq;
+
 //extern pthread_mutex_t iq_lock;
+extern pthread_mutex_t waitq_lock;
 extern pthread_mutex_t iq_new_lock;
 extern pthread_mutex_t mq_lock;
+extern pthread_mutex_t notq_lock;
 
 //void work_steal_init(char *parameters[], NoVoHT *pmap);
 void* worksteal(void* args);
+void* check_wait_queue(void* args);
 void* check_ready_queue(void* args);
+void* check_complete_queue(void* args);
 
 void* HB_insertQ(void* args);
 void* HB_insertQ_new(void* args);
 void* HB_localinsertQ(void* args);
 void* migrateTasks(void* args);
+void* notQueue(void* args);
 
 vector< vector<string> > tokenize(string input, char delim1, char delim2, int &num_vector, int &per_vector_count);
 

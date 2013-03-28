@@ -69,11 +69,6 @@ public:
 			exit(1);
 		}
 		memcpy(this->buffer, &recv_buf[header_size], string_size + 1);
-		char *b = (char*)this->buffer;
-		cout << "Server: recd = ";
-		for(int i = 0; i < string_size + 1; i++)
-			cout << b[i];
-		cout << endl;
 		this->fromAddr = addr;
 	}
 	;
@@ -612,7 +607,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 
 //	cout << "Server got package size: " << package.ByteSize() << endl;
 	
-	cout << "Operation: " << package.operation() << endl;
+	//cout << "Operation: " << package.operation() << endl;
 
 	switch (package.operation()) {
 	case 1: //lookup
@@ -628,8 +623,8 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 //			result = HB_lookup(hmap, package);
 			//result = HB_lookup(pmap, package);
 			result = worker->zht_lookup(package.virtualpath());
-			Package task_pkg;
-	                task_pkg.ParseFromString(result);
+			//Package task_pkg;
+	                //task_pkg.ParseFromString(result);
 			//cout << "server: c string = " << result.c_str() << " size = " << result.size() << endl;
 			//cout << "server: c++ string = " << result << " size = " << result.size() << endl;
 			//cout << "Server: task = " << task_pkg.virtualpath() << " nodehistory = " << task_pkg.nodehistory() << endl;
@@ -702,9 +697,11 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 			//		cout << "Insert..." << endl;
 			//operation_status = HB_insert(db, package);
 			//cout << "server: task = " << package.virtualpath() << " node history = " << package.nodehistory() << endl;
-			//string st = package.SerializeAsString();
-			//cout << "Insert into NoVoHT: str = " << st << endl;
 			operation_status = HB_insert(pmap, package); //result = HB_lookup(pmap, package);
+			//operation_status = worker->zht_insert(package.SerializeAsString());
+			if(operation_status != 0) {
+				cout << "server: zhtinsert error: key = " << package.virtualpath() << " ret = " << operation_status << endl;
+			}
 			//cout << "NoVoHT Insert: " << package.SerializeAsString() << endl;
 //			operation_status = HB_insert_cstr(chmap, package);
 			//		operation_status = HB_insert(hmap, package);
@@ -800,18 +797,18 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 	}
 		break;
 */
-		case 22: {
-                //insert tasks into queue
+		case 21: {
+                //insert tasks into wait queue
                 if (package.virtualpath().empty()) {
                         operation_status = -1;
                 } else {
-                        cout << "Insert tasks into queue..." << endl;
+                        //cout << "Insert tasks into wait queue..." << endl;
                         //operation_status = worker.HB_insertQ_new(pmap, package);
 			string *str;
                         str = new string(package.SerializeAsString());
-                        pthread_mutex_lock(&iq_new_lock);
-                        insertq_new.push(str);
-                        pthread_mutex_unlock(&iq_new_lock);
+                        pthread_mutex_lock(&waitq_lock);
+                        waitq.push(str);
+                        pthread_mutex_unlock(&waitq_lock);
                 }
                 
                 if (TCP == true) {
@@ -824,25 +821,82 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                 msg_count[7]++;
 
                 if (r <= 0) {
-                        cout << "HB_insertQ_new: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                        cout << "Insert_waitq: Server could not send acknowledgement to client: sendto r = " << r << endl;
                 }
 
                 msg_count[7]++;
         }
                 break;
 
+		case 22: {
+                //insert tasks into ready queue
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        //cout << "Insert tasks into ready queue..." << endl;
+                        //operation_status = worker.HB_insertQ_new(pmap, package);
+                        string *str;
+                        str = new string(package.SerializeAsString());
+                        pthread_mutex_lock(&iq_new_lock);
+                        insertq_new.push(str);
+                        pthread_mutex_unlock(&iq_new_lock);
+                }
+
+                if (TCP == true) {
+                        r = send(client_sock, &err, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &err, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+
+                msg_count[7]++;
+
+                if (r <= 0) {
+                        cout << "Insert_readyq: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+
+                msg_count[7]++;
+        }
+                break;
+
+		case 23: {
+                //check if task is ready
+		int32_t ret;
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        //cout << "check if task is ready..." << endl;
+			ret = worker->check_if_task_is_ready(package.virtualpath());
+                }
+
+                if (TCP == true) {
+                        r = send(client_sock, &ret, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &ret, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+
+                msg_count[7]++;
+
+                if (r <= 0) {
+                        cout << "check_if_task_is_ready: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+
+                msg_count[7]++;
+        }
+                break;
 		case 25: {
                 //update ZHT
                 if (package.virtualpath().empty()) {
                         operation_status = -1;
                 } else {
                         //cout << "Update ZHT..." << endl;
-                        /*string *str;
+                        string *str;
                         str = new string(package.SerializeAsString());
-                        pthread_mutex_lock(&iq_new_lock);
-                        insertq_new.push(str);
-                        pthread_mutex_unlock(&iq_new_lock);*/
-			worker->update(package);
+                        pthread_mutex_lock(&notq_lock);
+                        notifyq.push(str);
+                        pthread_mutex_unlock(&notq_lock);
+			//worker->update(package);
                 }
 
                 if (TCP == true) {

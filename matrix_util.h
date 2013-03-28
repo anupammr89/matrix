@@ -46,14 +46,14 @@ public:
 	TaskQueue_Item *next;*/
 
 	string task_id;
-	//uint32_t num_moves;
+	uint32_t num_moves;
 
 	TaskQueue_Item();
 	virtual ~TaskQueue_Item();
 };
 
 
-class TaskQueue
+/*class TaskQueue
 {
 public:
 	TaskQueue_Item *head;
@@ -69,7 +69,7 @@ public:
 	void add_element(TaskQueue_Item* qi);
 	TaskQueue_Item* remove_element();
 	long remove_n_elements(long num_tasks, TaskQueue* migrateq);
-};
+};*/
 
 class bitvec {
 public:

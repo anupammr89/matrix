@@ -322,8 +322,8 @@ int benchmarkALL(int numTest, int strLen) { //103+length
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 12) {
-        	cout << "Usage: " << argv[0] << "\tper_client_task\tneighborlist_file\tzht_config_file\tprotocol[TCP/UDP]\tsleep_time\tsubmissionmode[0/1/2]\tmax_tasks_per_package\tindex\tnum_tasks\tprefix\tshared" << endl;
+	if(argc != 13) {
+        	cout << "Usage: " << argv[0] << "\tper_client_task\tneighborlist_file\tzht_config_file\tprotocol[TCP/UDP]\tsleep_time\tsubmissionmode[0/1/2]\tmax_tasks_per_package\tindex\tnum_tasks\tprefix\tshared\tDAG_choice" << endl;
                 exit(1);
         }
 	srand(getpid() + getTime_usec());
@@ -348,6 +348,7 @@ int main(int argc, char* argv[]) {
 	int logging = 1;
 	initconfig(testClient, cfgFile, memberList);
 	int num_workers = testClient.memberList.size();
+	int DAG_choice = atoi(argv[12]);
 
 	set_dir(argv[10], argv[11]);
 	//initialze the client
@@ -383,7 +384,7 @@ int main(int argc, char* argv[]) {
 	if(index == 1) {
 		monitor_thread = mc.monitor(num_tasks, testClient);
 	}
-	mc.initializeTasks(per_client_task, sleep_time, mode, max_tasks_per_package, testClient);
+	mc.initializeTasks(per_client_task, sleep_time, mode, max_tasks_per_package, testClient, DAG_choice);
 	//mc.submitTasks(mode, testClient);
 	if(index == 1){
 		pthread_join(monitor_thread, NULL);

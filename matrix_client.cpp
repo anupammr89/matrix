@@ -70,41 +70,112 @@ struct submit_args {
 	int per_client_task;
 };
 
-void get_adjlist(int num_tasks, AdjList &adj_list) {
+void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 
-        #define MIN_PER_RANK 1 // Nodes/Rank: How 'fat' the DAG should be
-        #define MAX_PER_RANK 5
-        #define MIN_RANKS 3    // Ranks: How 'tall' the DAG should be
-        #define MAX_RANKS 5
-        #define PERCENT 30     // Chance of having an Edge
+	if(DAG_choice == 0) { // bag of tasks
+		for (int i = 0; i < num_tasks; i++) { // New nodes of 'higher' rank than all nodes generated till now
+                	// Edges from old nodes ('nodes') to new ones ('new_nodes')
+	                vector<int> new_list;
+        	        adj_list.insert(make_pair(i, new_list));
+        	}
+	}
 
-        srand (time (NULL));
-        int height = floor(sqrt(num_tasks));    //height = MIN_RANKS + (rand () % (MAX_RANKS - MIN_RANKS + 1));
-        int new_nodes = ceil(sqrt(num_tasks));  //new_nodes = MIN_PER_RANK + (rand () % (MAX_PER_RANK - MIN_PER_RANK + 1));
-        int nodes = 0;
+	else if(DAG_choice == 1) { // random DAG
+		#define MIN_PER_RANK 1 // Nodes/Rank: How 'fat' the DAG should be
+        	#define MAX_PER_RANK 5
+	        #define MIN_RANKS 3    // Ranks: How 'tall' the DAG should be
+        	#define MAX_RANKS 5
+	        #define PERCENT 30     // Chance of having an Edge
 
-        for (int i = 0; i < height; i++) { // New nodes of 'higher' rank than all nodes generated till now
-                // Edges from old nodes ('nodes') to new ones ('new_nodes')
-                for (int j = 0; j < nodes; j++) {
-                        for (int k = 0; k < new_nodes; k++) {
-                                if ( (rand () % 100) < PERCENT) {
-                                        if(adj_list.find(j) == adj_list.end()) {
-                                                vector<int> new_list;
-                                                new_list.push_back(k + nodes);
-                                                adj_list.insert(make_pair(j, new_list));
-                                        }
-                                        else {
-                                                vector<int> &exist_list = adj_list[j];
-                                                exist_list.push_back(k + nodes);
-                                        }
-                                        if(adj_list.find(k + nodes) == adj_list.end()) {
-                                                adj_list.insert(make_pair(k + nodes, vector<int>()));
-                                        }
-                                }
-                        }
-                }
-                nodes += new_nodes; // Accumulate into old node set
-        }
+        	srand (time (NULL));
+	        int height = floor(sqrt(num_tasks));    //height = MIN_RANKS + (rand () % (MAX_RANKS - MIN_RANKS + 1));
+        	int new_nodes = ceil(sqrt(num_tasks));  //new_nodes = MIN_PER_RANK + (rand () % (MAX_PER_RANK - MIN_PER_RANK + 1));
+	        int nodes = 0;
+
+        	for (int i = 0; i < height; i++) { // New nodes of 'higher' rank than all nodes generated till now
+                	// Edges from old nodes ('nodes') to new ones ('new_nodes')
+	                for (int j = 0; j < nodes; j++) {
+        	                for (int k = 0; k < new_nodes; k++) {
+                	                if ( (rand () % 100) < PERCENT) {
+                        	                if(adj_list.find(j) == adj_list.end()) {
+                                	                vector<int> new_list;
+                                        	        new_list.push_back(k + nodes);
+                                                	adj_list.insert(make_pair(j, new_list));
+	                                        }
+        	                                else {
+                	                                vector<int> &exist_list = adj_list[j];
+                        	                        exist_list.push_back(k + nodes);
+                                	        }
+                                        	if(adj_list.find(k + nodes) == adj_list.end()) {
+	                                               	adj_list.insert(make_pair(k + nodes, vector<int>()));
+	                                        }
+        	                        }
+                	        }
+                	}
+	                nodes += new_nodes; // Accumulate into old node set
+        	}
+	}
+
+	else if(DAG_choice == 2) { // pipeline DAG
+		int nodes = 0;
+        	int num_pipeline = floor(sqrt(num_tasks));
+	        int pipeline_height = ceil(sqrt(num_tasks));
+
+        	for (int i = 0; i < num_pipeline; i++) {
+                	for (int j = 0; j < pipeline_height; j++) { // New nodes of 'higher' rank than all nodes generated till now
+	                // Edges from old nodes ('nodes') to new ones ('new_nodes')
+        	                if(adj_list.find(nodes) == adj_list.end()) {
+                	                vector<int> new_list;
+                        	        new_list.push_back(nodes+1);
+                                	adj_list.insert(make_pair(nodes, new_list));
+	                        }
+        	                else {
+                	                vector<int> &exist_list = adj_list[nodes];
+                        	        exist_list.push_back(nodes+1);
+	                        }
+        	                if(adj_list.find(nodes+1) == adj_list.end()) {
+                	                adj_list.insert(make_pair(nodes+1, vector<int>()));
+                        	}
+	                        nodes++; // Accumulate into old node set
+        	        }
+                	nodes++;
+        	}
+	}
+
+	else if(DAG_choice == 3) { // fan in DAG
+		for (int i = 0; i < num_tasks-1; i++) { // New nodes of 'higher' rank than all nodes generated till now
+         	       // Edges from old nodes ('nodes') to new ones ('new_nodes')
+                	vector<int> new_list;
+	                new_list.push_back(num_tasks-1);
+        	        adj_list.insert(make_pair(i, new_list));
+                	if(adj_list.find(num_tasks-1) == adj_list.end()) {
+                        	adj_list.insert(make_pair(num_tasks-1, vector<int>()));
+	                }
+        	}
+	}
+
+	else if(DAG_choice == 4) { // fan out DAG
+		for (int i = 1; i < num_tasks; i++) { // New nodes of 'higher' rank than all nodes generated till now
+         	       // Edges from old nodes ('nodes') to new ones ('new_nodes')
+	                if(adj_list.find(0) == adj_list.end()) {
+        	                vector<int> new_list;
+                	        new_list.push_back(i);
+                        	adj_list.insert(make_pair(0, new_list));
+	                }
+        	        else {
+                	        vector<int> &exist_list = adj_list[0];
+                        	exist_list.push_back(i);
+	                }
+        	        if(adj_list.find(i) == adj_list.end()) {
+                	        adj_list.insert(make_pair(i, vector<int>()));
+	                }
+        	}
+	}
+
+	else {
+		cout << "Enter proper choice for DAG" << endl;
+		exit(1);
+	}
 }
 
 void print_AdjList(AdjList &adj_list) {
@@ -118,7 +189,7 @@ void print_AdjList(AdjList &adj_list) {
         }
 }
 
-int get_DAG(AdjList &adj_list, TaskDAG &dag) {
+int get_DAG(AdjList &adj_list, TaskDAG &dag, string clientid) {
         InDegree indegree;
         for(AdjList::iterator it = adj_list.begin(); it != adj_list.end(); ++it) {
                 vector<int> exist_list = it->second;
@@ -132,7 +203,7 @@ int get_DAG(AdjList &adj_list, TaskDAG &dag) {
                         int dest_vertex = exist_list[i];
 
                         // add each vertex to string
-                        adj_ss << exist_list[i] << "\'";
+                        adj_ss << exist_list[i] << clientid << "\'";
 
                         // update indegree count of each vertex in adjacency list
                         if(indegree.find(dest_vertex) == indegree.end()) {
@@ -154,19 +225,24 @@ int get_DAG(AdjList &adj_list, TaskDAG &dag) {
 }
 
 void print_DAG(TaskDAG &dag) {
+	uint32_t expected_notifications = 0;
         for(TaskDAG::iterator it = dag.begin(); it != dag.end(); ++it) {
                 int vertex = it->first;
                 TaskDAG_Value value(it->second);
-                cout << "Vertex = " << vertex << " Indegree = " << value.first << " AdjList = " << value.second << endl;
+		expected_notifications += value.first;
+                //cout << "Vertex = " << vertex << " Indegree = " << value.first << " AdjList = " << value.second << endl;
+		client_logfile << "Vertex = " << vertex << " Indegree = " << value.first << " AdjList = " << value.second << endl;
         }
+	cout << "expected_notifications = " << expected_notifications << endl;
+	client_logfile << "expected_notifications = " << expected_notifications << endl;
 }
 
-TaskDAG generate_DAG(int &num_tasks, int &num_nodes) {
+TaskDAG generate_DAG(int &num_tasks, int &num_nodes, string clientid, int choice) {
         AdjList adj_list;
-        get_adjlist(num_tasks, adj_list);
+        get_adjlist(num_tasks, adj_list, choice);
         //print_AdjList(adj_list);
         TaskDAG dag;
-        num_nodes = get_DAG(adj_list, dag);
+        num_nodes = get_DAG(adj_list, dag, clientid);
         //cout << "Num nodes = " << num_nodes << endl;
         //print_DAG(dag); exit(1);
 	return dag;
@@ -194,17 +270,17 @@ void* submit(void *args) {
 			continue;
 		}
 		pthread_mutex_unlock(&submit_q);
-		int32_t ret = thread_args->clientRet.insert(str); cout << "Insert status = " << ret << endl;//<< " string = " << str << endl;
+		int32_t ret = thread_args->clientRet.insert(str); //cout << "Insert status = " << ret << endl;//<< " string = " << str << endl;
 		//string result;
 		//ret = thread_args->clientRet.lookup(str, result); cout << "Lookup status = " << ret << " string = " << result << endl;
-		count++; cout << "Thread: Task " << count << ": sent" << endl;
+		count++; //cout << "Thread: Task " << count << ": sent" << endl;
 	}
 	}
 }
 
 int index_start = 0;
 //initialize all tasks
-int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int max_tasks_per_package, ZHTClient &clientRet){	
+int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int max_tasks_per_package, ZHTClient &clientRet, int DAG_choice){
 
 	srand(time(NULL)); // Random seed for all time measurements
 
@@ -219,12 +295,12 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 	//cout << "to server = " << toserver << endl;
 
 	// Initialize a random DAG based on the number of tasks requested by client
-	// Note: The number of tasks in the generated DAG may be actually less than what is requested
+	// Note: The number of tasks in the generated DAG may not be actually equal to what is requested
 	//	 This is fine for now, as in real systems the actual DAG would be supplied rather than we generate one.
 	int num_tasks; // number of tasks actually generated
-	TaskDAG dag = generate_DAG(num_tasks_req, num_tasks); cout << "total tasks = " << num_tasks << endl;
-	total_num_tasks = num_tasks * 2;
-	//print_DAG(dag);
+	TaskDAG dag = generate_DAG(num_tasks_req, num_tasks, client_id, DAG_choice); //cout << "total tasks = " << num_tasks << endl;
+	total_num_tasks = num_tasks * num_worker;
+	print_DAG(dag);
 
 	// Submission time for the task; for simplicity it is kept same for all tasks
 	timespec sub_time;
@@ -270,7 +346,7 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 //		string str1 = package.SerializeAsString(); // Serialize the package
 //cout << " str1 = " << str1 << endl;
 
-/*		stringstream to_index_ss;
+		stringstream to_index_ss;
 		to_index_ss << toserver << "\'" << "\"";
 		package.set_nodehistory(to_index_ss.str()); // History of migrations delimited by \' with a final \"
 //		cout << "nodehistory = " << package.nodehistory();
@@ -284,14 +360,14 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 		//cout << "notlist = " << package.notlist() << endl;
 //		string str2 = package.SerializeAsString();  // Serialize the package
 //cout << " str2 = " << str2 << endl;
-*/
+
 		stringstream package_content_ss;
 		//package_content_ss << value.second; // List of tasks to be notified after finishing execution
 		package_content_ss << "NULL"; package_content_ss << "\'"; 				// Task completion status
 		package_content_ss << task_desc; package_content_ss << "\'"; 				// Task Description
 		package_content_ss << task_id_ss.str();	package_content_ss << "\'"; 			// Task ID
 		package_content_ss << sub_time_ns; package_content_ss << "\'"; package_content_ss << "\""; // Task Submission Time
-		//package_content_ss << value.second; // List of tasks to be notified after finishing execution
+		package_content_ss << value.second; // List of tasks to be notified after finishing execution
 		package.set_realfullpath(package_content_ss.str());
 		string str = package.SerializeAsString(); // Serialize the package
 //cout << " str = " << str << endl;
@@ -319,8 +395,8 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 	while (total_submitted1 != num_tasks) {
 		Package package; string alltasks;
 		package.set_virtualpath(client_id); // Here key is just the client ID
-		//package.set_operation(21);			
-		package.set_operation(22);
+		package.set_operation(21);			
+		//package.set_operation(22);
 		num_packages++;
 			
 		int num_tasks_this_package = max_tasks_per_package;
@@ -333,7 +409,7 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 
         	        stringstream task_id_ss;
                 	task_id_ss << task_id << client_id; // Task ID + Client ID
-			alltasks.append(task_id_ss.str()); alltasks.append("\'"); // Task ID
+			alltasks.append(task_id_ss.str()); alltasks.append("\'\""); // Task ID
 		}
 		total_submitted1 = total_submitted1 + num_tasks_this_package;
 		package.set_realfullpath(alltasks);
