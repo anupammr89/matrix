@@ -1,0 +1,107 @@
+-------------------FILE DIRECTORY-------------------
+The following files in this directory:
+benchmark_client.cpp:  			MATRIX benchmark program
+benchmark_client_detailed.cpp:		ZHT benchmark program
+
+matrix_client.cpp:			MATRIX client side for initializing and submitting tasks impl
+matrix_xlient.h:			MATRIX client side for initializing and submitting tasks header
+matrix_server.cpp:			MATRIX server side for handling task execution and workstealing impl
+matrix_server.h:			MATRIX server side for handling task execution and workstealing header
+matrix_util.cpp:			MATRIX utilities impl
+matrux_util.h:				MATRIX utilities header
+c_zhtclient_main.c:			ZHT c binding test cases
+c_zhtclient.cpp:			ZHT c binding impl
+c_zhtclient.h:				ZHT c binding header
+c_zhtclientStd.cpp:			ZHT c binding internals impl
+c_zhtclientStd.h:			ZHT c binding internals header
+cpp_zhtclient.cpp:			ZHT c++ binding impl
+cpp_zhtclient.h:			ZHT c++ binding header
+lru_cache.cpp:				ZHT connection cache impl
+lru_cache.h:				ZHT connection cache header
+meta.pb.cc:				ZHT client-server-communication-package c++ binding impl
+meta.pb.h:				ZHT client-server-communication package c++ binding header
+meta.pb-c.c:				ZHT client-server-communication-package c binding impl
+meta.pb-c.h:				ZHT client-server-communication-package c binding impl
+net_util.cpp:				ZHT client-server-communication-library impl
+net_util.h:				ZHT client-server-communication-library header
+novoht.cpp:				ZHT storage engine impl
+novoht.h:				ZHT storage engine header
+server_general.cpp:			ZHT server impl
+zht_util.cpp:				ZHT utility functions impl
+zht_util.cpp:				ZHT utility functions header
+
+Makefile:				make file
+sample_Makefile:			sample make file to compile and built user's ZHT/MATRIX applications
+
+neighbor:				file that contains neighbored nodes in DHT overlay network
+zht.cfg:				configure parameters other than neighbors
+
+README:					this file
+
+
+-------------------SOFTWARE REQUIREMENTS-------------------
+Google protocol buffers c binding, 0.15 or later
+		http://code.google.com/p/protobuf-c/downloads/list
+
+
+Google protocol buffers c++ binding, 2.3.0 or later
+		http://code.google.com/p/protobuf/downloads/list
+
+
+-------------------COMPILE AND INSTALL-------------------
+Assuming that Google protocol buffers c and c++ bindings are installed to default directory, that is, /usr/local, in other words,  ./configured --prefix=/usr/local
+
+To compile and install ZHT/MATRIX
+	make
+
+If you installed Google protocol buffers c and c++ bindings to customized directory, e.g./home/xiaobingo/install, MAKE SURE TO EXPORT them, e.g.
+1. cd to your home directory
+2. vim/gedit .bashrc
+3. append the following lines to the end,
+	export USER_LIB=/home/xiaobingo/install/lib/
+	export USER_INCLUDE=/home/xiaobingo/install/include/
+	export LD_LIBRARY_PATH=$USER_LIB
+4. source .bashrc
+5. COMPILE/RUN ZHT/MATRIX AT NEW TERMINAL
+
+, otherwise, you probably fail to compile ZHT/MATRIX or locate dependencies required by ZHT/MATRIX runtime.
+
+
+-------------------RUN THE BENCHMARK-------------------
+To run benchmark:
+1. ./server 50000 neighbor zht.cfg TCP logging max_tasks_per_package num_tasks prefix shared
+2. ./client per_client_task neighbor zht.cfg TCP sleep_time max_tasks_per_package client_index num_tasks prefix shared DAG_choice
+
+The sequence of arguments should be maintained.
+
+Arguments Description:
+Server:
+50000 is the MATRIX server port,
+neighbor is the file that contains neighbored nodes in DHT overlay network,
+zht.cfg is to config other parameters of ZHT,
+TCP is to use tcp protocol, instead, UDP is used,
+logging is the flag to turn ON/OFF logging information
+max_tasks_per_package is the number of tasks to bundle in single package before submitting to MATRIX server; this is there since there is a limit on message size than can be handled,
+prefix is the path to logging directory to be used by every instance of MATRIX server; it is private to every instance,
+shared is the path to logging directory that is shared by all MATRIX servers
+
+Client:
+per_client_task is the number of tasks to be submiited by this client; useful when there are multiple clients trying to submit tasks to MATRIX,
+sleep_time is the duration of sleep task that is submitted,
+client_index is the index of this client; used when there are multiple clients
+DAG_choice is the choice of DAG to be used; 0 - Bag of Tasks, 1 - Random DAG, 2 - Pipeline DAG, 3 - Fan In DAG, 4 - Fan Out DAG
+Rest arguments are same as mentioned for server
+
+
+-------------------CLUSTER DEPLOYMENT-------------------
+To deploy MATRIX on a cluster of nodes:
+1. copy the  binaries i.e. server and client, to every node.
+2. copy configure files, that is, neighbor, zht.cfg, to every node.
+3. edit the the file neighbor to contain all the ip and port of these nodes, DO NOT USE localhost.
+4. In every node, run as mentioned in Benchmark
+
+
+-------------------DEVELOPE YOUR ZHT APPLICATIONS-------------------
+To develope your own ZHT applications, please refer TO c_zhtclient_main.c, which extensively tests ZHT client c binding, internally invoking c++ binding.
+
+To compile your own ZHT applications(e.g.your_zht_app.c), we give out the sample Makefile for this purpose, see also sample_Makefile in src/, to save your time.
