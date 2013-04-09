@@ -72,6 +72,8 @@ struct submit_args {
 
 void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 
+	#define MAX_CHILDREN 100
+
 	if(DAG_choice == 0) { // bag of tasks
 		for (int i = 0; i < num_tasks; i++) { // New nodes of 'higher' rank than all nodes generated till now
                 	// Edges from old nodes ('nodes') to new ones ('new_nodes')
@@ -104,7 +106,8 @@ void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 	                                        }
         	                                else {
                 	                                vector<int> &exist_list = adj_list[j];
-                        	                        exist_list.push_back(k + nodes);
+							if(exist_list.size() < MAX_CHILDREN)
+	                        	                        exist_list.push_back(k + nodes);
                                 	        }
                                         	if(adj_list.find(k + nodes) == adj_list.end()) {
 	                                               	adj_list.insert(make_pair(k + nodes, vector<int>()));
@@ -143,33 +146,64 @@ void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 	}
 
 	else if(DAG_choice == 3) { // fan in DAG
-		for (int i = 0; i < num_tasks-1; i++) { // New nodes of 'higher' rank than all nodes generated till now
-         	       // Edges from old nodes ('nodes') to new ones ('new_nodes')
-                	vector<int> new_list;
-	                new_list.push_back(num_tasks-1);
-        	        adj_list.insert(make_pair(i, new_list));
-                	if(adj_list.find(num_tasks-1) == adj_list.end()) {
-                        	adj_list.insert(make_pair(num_tasks-1, vector<int>()));
+	        AdjList adj_list1;
+	        adj_list1.insert(make_pair(0, vector<int>()));
+	        int index = 0; int count = pow(MAX_CHILDREN, 0);
+        	int num_level = floor(log(num_tasks)/log(MAX_CHILDREN));
+	        int j = 0; int num = 1;
+	        while(j <= num_level) {
+                	while(index < count) {
+        	                vector<int> &exist_list = adj_list1[index];
+	                        for (int i = num; i < num+MAX_CHILDREN; i++) {
+                                	exist_list.push_back(i);
+                        	        if(adj_list1.find(i) == adj_list1.end()) {
+                	                        adj_list1.insert(make_pair(i, vector<int>()));
+        	                        }
+	                                if(i >= num_tasks) {
+                                	        index = count; j = num_level+1; break;
+                        	        }
+                	        } num += MAX_CHILDREN;
+        	                index++;
 	                }
+                	count += pow(MAX_CHILDREN, ++j);
+        	}
+
+		for(AdjList::iterator it = adj_list1.begin(); it != adj_list1.end(); ++it) {
+        	        int vertex = it->first;
+	                if(adj_list.find(vertex) == adj_list.end()) {
+                        	adj_list.insert(make_pair(vertex, vector<int>()));
+                	}
+        	        vector<int> &alist = it->second; int alist_size = alist.size();
+	                for(int i = 0; i < alist_size; i++) {
+                        	int v = alist[i];
+                	        if(adj_list.find(v) == adj_list.end()) {
+        	                        adj_list.insert(make_pair(v, vector<int>()));
+	                        }
+	                        vector<int> &exist_list = adj_list[v]; exist_list.push_back(vertex);
+                	}
         	}
 	}
 
 	else if(DAG_choice == 4) { // fan out DAG
-		for (int i = 1; i < num_tasks; i++) { // New nodes of 'higher' rank than all nodes generated till now
-         	       // Edges from old nodes ('nodes') to new ones ('new_nodes')
-	                if(adj_list.find(0) == adj_list.end()) {
-        	                vector<int> new_list;
-                	        new_list.push_back(i);
-                        	adj_list.insert(make_pair(0, new_list));
-	                }
-        	        else {
-                	        vector<int> &exist_list = adj_list[0];
-                        	exist_list.push_back(i);
-	                }
-        	        if(adj_list.find(i) == adj_list.end()) {
-                	        adj_list.insert(make_pair(i, vector<int>()));
-	                }
-        	}
+	        adj_list.insert(make_pair(0, vector<int>()));
+        	int index = 0; int count = pow(MAX_CHILDREN, 0);
+	        int num_level = floor(log(num_tasks)/log(MAX_CHILDREN));
+        	int j = 0; int num = 1;
+	        while(j <= num_level) {
+        	        while(index < count) {
+                	        vector<int> &exist_list = adj_list[index];
+                        	for (int i = num; i < num+MAX_CHILDREN; i++) {
+                                	exist_list.push_back(i);
+	                                if(adj_list.find(i) == adj_list.end()) {
+        	                                adj_list.insert(make_pair(i, vector<int>()));
+                	                }
+                        	        if(i >= num_tasks)
+                                	        return;
+	                        } num += MAX_CHILDREN;
+        	                index++;
+                	}
+        	        count += pow(MAX_CHILDREN, ++j);
+	        }
 	}
 
 	else {
@@ -211,6 +245,10 @@ int get_DAG(AdjList &adj_list, TaskDAG &dag, string clientid) {
                         }
                         else {
                                 indegree[dest_vertex] = indegree[dest_vertex] + 1;
+                        }
+			if(dag.find(dest_vertex) != dag.end()) {
+                                TaskDAG_Value &value = dag[dest_vertex];
+                                value.first = indegree[dest_vertex];
                         }
                 }
                 adj_ss << "\"";
