@@ -763,40 +763,39 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 //Workstealing functions
 
 	int32_t err;
-/*	case 21: {
-		//insert tasks into queue
-		if (package.virtualpath().empty()) {
-			operation_status = -1;
-		} else {
-			//cout << "Insert tasks into queue..." << endl;
-			//operation_status = worker.HB_insertQ(pmap, package);
-			string *str;
-			str = new string(package.SerializeAsString());
-			pthread_mutex_lock(&iq_lock);
-			insertq.push(str);
-			//if (worker->selfIndex == 1) {
-				//cout << "Stole tasks" << endl;
-			//}
-			pthread_mutex_unlock(&iq_lock);
-		}
-		
-		if (TCP == true) {
-			r = send(client_sock, &err, sizeof(int32_t), 0);
-		} else {
-			r = sendto(client_sock, &err, sizeof(int32_t), 0,
-					(struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
-		}
 
-		msg_count[7]++;
-	
-		if (r <= 0) {
-			cout << "HB_insertQ: Server could not send acknowledgement to client: sendto r = " << r << endl;
-		}
+		case 20: {
+                //insert tasks into wait queue
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        //cout << "Insert tasks into wait queue..." << endl;
+                        //operation_status = worker.HB_insertQ_new(pmap, package);
+                        /*string *str;
+                        str = new string(package.SerializeAsString());
+                        pthread_mutex_lock(&zht_ins_lock);
+                        zht_ins.push(str);
+                        pthread_mutex_unlock(&zht_ins_lock);*/
+                        err = worker->zht_ins_mul(package);
+                }
 
-		msg_count[7]++;
-	}
-		break;
-*/
+                if (TCP == true) {
+                        r = send(client_sock, &err, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &err, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+
+                msg_count[7]++;
+
+                if (r <= 0) {
+                        cout << "Insert_waitq: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+
+                msg_count[7]++;
+        }
+                break;
+
 		case 21: {
                 //insert tasks into wait queue
                 if (package.virtualpath().empty()) {

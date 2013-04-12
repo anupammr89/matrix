@@ -294,6 +294,16 @@ Worker::Worker(char *parameters[], NoVoHT *novoht) {
 	}
 }
 
+int Worker::zht_ins_mul(Package &package) {
+        int num_vector_count, per_vector_count;
+        vector< vector<string> > tokenize_string = tokenize(package.realfullpath(), '$', '#', num_vector_count, per_vector_count);
+	//cout << " num_vector_count = " << num_vector_count << " per_vector_count = " << per_vector_count << endl;
+        for(int i = 0; i < per_vector_count; i++) {
+                zht_insert(tokenize_string.at(0).at(i));
+        } //cout << "Server: " << selfIndex << " no. tasks inserted = " << per_vector_count << endl;
+        return per_vector_count;
+}
+
 // parse the input string containing two delimiters
 vector< vector<string> > tokenize(string input, char delim1, char delim2, int &num_vector, int &per_vector_count) {
 	vector< vector<string> > token_vector;
@@ -1309,7 +1319,7 @@ string Worker::zht_lookup(string key) {
 	else {
 		string *result = pmap->get(key);
 		if (result == NULL) {
-			cout << "lookup find nothing. key = " << key << endl;
+			//cout << "lookup find nothing. key = " << key << endl;
 			string nullString = "Empty";
 			return nullString;
 		}
@@ -1333,14 +1343,14 @@ int Worker::zht_insert(string str) {
 	int index;
         svrclient.str2Host(str, index);
 
-	if(index != selfIndex) {
+	if(index != selfIndex) { //cout << "NOOOOO..index = " << index << endl;
                 pthread_mutex_lock(&msg_lock);
-                int ret = svrclient.insert(str);
+                int ret = svrclient.insert(str); 
                 pthread_mutex_unlock(&msg_lock);
 		return ret;
         }
 	else {
-		string key = package.virtualpath();
+		string key = package.virtualpath(); //cout << "key = " << key << endl;
 		//pthread_mutex_lock(&zht_lock);
 		int ret = pmap->put(key, str);
 		//pthread_mutex_unlock(&zht_lock);

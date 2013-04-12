@@ -20,6 +20,42 @@ string loadfile_name;
 ofstream client_logfile;
 ofstream loadfile;
 
+#define SIXTY_KILOBYTES 61440
+#define STRING_THRESHOLD SIXTY_KILOBYTES
+typedef deque<string> NodeList;
+map<uint32_t, NodeList> update_map;
+static uint32_t tcount = 0;
+void get_map(vector<string> &mqueue, uint32_t num_nodes) {
+        //map<uint32_t, NodeList> update_map;
+        //uint32_t num_nodes = svrclient.memberList.size();
+        for(vector<string>::iterator it = mqueue.begin(); it != mqueue.end(); ++it) {
+                Package package;
+                package.ParseFromString(*it); //cout << "key = " << package.virtualpath() << endl;
+                uint32_t serverid = myhash(package.virtualpath().c_str(), num_nodes);
+                string str(*it); str.append("#");
+                if(update_map.find(serverid) == update_map.end()) {
+                        str.append("$");
+                        NodeList new_list;
+                        new_list.push_back(str);
+                        update_map.insert(make_pair(serverid, new_list));
+                }
+                else {
+                        NodeList &exist_list = update_map[serverid];
+                        string last_str(exist_list.back());
+                        if((last_str.size() + str.size()) > STRING_THRESHOLD) {
+                                str.append("$");
+                                exist_list.push_back(str);
+                        }
+                        else {
+                                exist_list.pop_back();
+                                str.append(last_str);
+                                exist_list.push_back(str);
+                        }
+                }
+        }
+        //return update_map;
+}
+
 //initialize client parameters
 int MATRIXClient::init(int num_tasks, int numSleep, ZHTClient &clientRet, int log, int index) {
 	//cout << "mc: prefix = " << prefix << " shared = " << shared << endl;
@@ -316,6 +352,28 @@ void* submit(void *args) {
 	}
 }
 
+void submittasks(ZHTClient &clientRet) {
+        /*uint32_t count = task_str_list.size();
+        for(uint32_t i = 0; i < count; i++) {
+                int32_t ret = clientRet.insert(task_str_list[i]); //cout << "task " << i << " sent" << endl;
+        }*/
+        int ret = 0;
+        Package package;
+        package.set_operation(20);
+        package.set_virtualpath("zht_insert");
+        for(map<uint32_t, NodeList>::iterator map_it = update_map.begin(); map_it != update_map.end(); ++map_it) {
+                uint32_t index = map_it->first;
+                NodeList &update_list = map_it->second;
+                while(!update_list.empty()) { //cout << "str = " << update_list.front() << endl;
+                        package.set_realfullpath(update_list.front());
+                        update_list.pop_front();
+                        string update_str = package.SerializeAsString();
+                        ret += clientRet.svrtosvr(update_str, update_str.size(), index);
+                }
+        }
+        cout << " no. tasks inserted = " << ret << endl;
+}
+
 int index_start = 0;
 //initialize all tasks
 int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int max_tasks_per_package, ZHTClient &clientRet, int DAG_choice){
@@ -357,7 +415,7 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 
 	// Spin the submission thread with the structure containing the above mentioned arguments
 	pthread_t submit_thread;
-	pthread_create(&submit_thread, NULL, submit, &thread_args);
+	//pthread_create(&submit_thread, NULL, submit, &thread_args);
 
 	// Reserve space for the vector to hold serialized packages for each individual task
 	task_str_list.reserve(num_tasks);
@@ -409,15 +467,25 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int mode, int
 		package.set_realfullpath(package_content_ss.str());
 		string str = package.SerializeAsString(); // Serialize the package
 //cout << " str = " << str << endl;
-		pthread_mutex_lock(&submit_q);
+		//pthread_mutex_lock(&submit_q);
 		// Push the serialized task into a vector which is shared by another thread that handles the submission over the network
 		task_str_list.push_back(str);
-		pthread_mutex_unlock(&submit_q);
+		//pthread_mutex_unlock(&submit_q);
        	}
-	pthread_join(submit_thread, NULL); // Wait for the submission thread to finish sending the tasks over the network
+	clock_gettime(CLOCK_REALTIME, &end_tasks); timespec diff1 = timediff(start_tasks, end_tasks);
+        cout << "novoht jobs created. TIME TAKEN: " << diff1.tv_sec << "  SECONDS  " << diff1.tv_nsec << "  NANOSECONDS" << endl;
+
+        get_map(task_str_list, num_worker);
+
+        clock_gettime(CLOCK_REALTIME, &start_tasks);
+
+        submittasks(clientRet);
+
+	//pthread_join(submit_thread, NULL); // Wait for the submission thread to finish sending the tasks over the network
 	clock_gettime(CLOCK_REALTIME, &end_tasks); // Measure the end time to insert all tasks into NoVoHT
 	timespec diff = timediff(start_tasks, end_tasks); // Measure the total time to insert all tasks into NoVoHT
 	cout << num_tasks << " tasks inserted into NoVoHT" <<  endl;
+	cout << "TIME TAKEN: " << diff.tv_sec << "  SECONDS  " << diff.tv_nsec << "  NANOSECONDS" << endl;
 	if (client_logfile.is_open() && cl_LOGGING) {
 		client_logfile << num_tasks << "tasks inserted into NoVoHT" <<  endl;
 		client_logfile << "TIME TAKEN: " << diff.tv_sec << "  SECONDS  " << diff.tv_nsec << "  NANOSECONDS" << endl;

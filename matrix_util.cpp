@@ -72,12 +72,6 @@ Env_var::Env_var() {
 Env_var::~Env_var() {
 }
 
-TaskQueue::TaskQueue() : head(NULL), tail(NULL), TaskQueue_length(0) {
-}
-
-TaskQueue::~TaskQueue() {
-}
-
 TaskQueue_Item::TaskQueue_Item() {
 }
 

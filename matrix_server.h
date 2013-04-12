@@ -65,6 +65,8 @@ public:
 
 	int notify(ComPair &compair);
 
+	int zht_ins_mul(Package &package);
+
 	string zht_lookup(string key);
 	int zht_insert(string str);
 	int zht_remove(string key);
