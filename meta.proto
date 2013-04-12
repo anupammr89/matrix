@@ -7,6 +7,8 @@ message Package{
         optional int32 openMode = 26;
         optional int32 mode = 27;
 
+	optional bytes serialized = 23;
+
         optional int32 Operation = 8; //1 for look up, 2 for remove, 3 for insert
         optional int32 replicaNo =9; //nagative number means it's not an original request.
 

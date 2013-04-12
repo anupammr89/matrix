@@ -296,7 +296,7 @@ Worker::Worker(char *parameters[], NoVoHT *novoht) {
 
 int Worker::zht_ins_mul(Package &package) {
         int num_vector_count, per_vector_count;
-        vector< vector<string> > tokenize_string = tokenize(package.realfullpath(), '$', '#', num_vector_count, per_vector_count);
+        vector< vector<string> > tokenize_string = tokenize(package.serialized(), '$', '#', num_vector_count, per_vector_count);
 	//cout << " num_vector_count = " << num_vector_count << " per_vector_count = " << per_vector_count << endl;
         for(int i = 0; i < per_vector_count; i++) {
                 zht_insert(tokenize_string.at(0).at(i));

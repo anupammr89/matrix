@@ -26,7 +26,7 @@ void protobuf_AssignDesc_meta_2eproto() {
       "meta.proto");
   GOOGLE_CHECK(file != NULL);
   Package_descriptor_ = file->message_type(0);
-  static const int Package_offsets_[26] = {
+  static const int Package_offsets_[27] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, virtualpath_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, num_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, realfullpath_),
@@ -34,6 +34,7 @@ void protobuf_AssignDesc_meta_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, listitem_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, openmode_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, mode_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, serialized_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, operation_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, replicano_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Package, opcode_),
@@ -95,19 +96,19 @@ void protobuf_AddDesc_meta_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\nmeta.proto\"\336\003\n\007Package\022\023\n\013virtualPath\030"
+    "\n\nmeta.proto\"\362\003\n\007Package\022\023\n\013virtualPath\030"
     "\001 \001(\t\022\013\n\003num\030\002 \001(\005\022\024\n\014realFullPath\030\003 \001(\t"
     "\022\r\n\005isDir\030\030 \001(\010\022\020\n\010listItem\030\031 \003(\t\022\020\n\010ope"
-    "nMode\030\032 \001(\005\022\014\n\004mode\030\033 \001(\005\022\021\n\tOperation\030\010"
-    " \001(\005\022\021\n\treplicaNo\030\t \001(\005\022\016\n\006opcode\030\n \001(\t\022"
-    "\r\n\005rcode\030\013 \001(\t\022\023\n\013migrateInst\030\014 \001(\r\022\017\n\007u"
-    "prange\030\r \001(\010\022\021\n\tsourceZHT\030\016 \001(\t\022\021\n\ttarge"
-    "tZHT\030\017 \001(\t\022\016\n\006rfname\030\020 \001(\t\022\016\n\006lfname\030\021 \001"
-    "(\t\022\022\n\nmigringpos\030\022 \003(\004\022\023\n\013gmembership\030\023 "
-    "\001(\t\022\020\n\010isfwdmsg\030\024 \001(\010\022\022\n\nasneighbor\030\025 \001("
-    "\t\022\020\n\010wifecode\030\026 \001(\t\022\020\n\010nummoves\030\005 \001(\r\022\023\n"
-    "\013nodehistory\030\004 \001(\t\022\020\n\010currnode\030\006 \001(\r\022\017\n\007"
-    "numwait\030\007 \001(\r", 493);
+    "nMode\030\032 \001(\005\022\014\n\004mode\030\033 \001(\005\022\022\n\nserialized\030"
+    "\027 \001(\014\022\021\n\tOperation\030\010 \001(\005\022\021\n\treplicaNo\030\t "
+    "\001(\005\022\016\n\006opcode\030\n \001(\t\022\r\n\005rcode\030\013 \001(\t\022\023\n\013mi"
+    "grateInst\030\014 \001(\r\022\017\n\007uprange\030\r \001(\010\022\021\n\tsour"
+    "ceZHT\030\016 \001(\t\022\021\n\ttargetZHT\030\017 \001(\t\022\016\n\006rfname"
+    "\030\020 \001(\t\022\016\n\006lfname\030\021 \001(\t\022\022\n\nmigringpos\030\022 \003"
+    "(\004\022\023\n\013gmembership\030\023 \001(\t\022\020\n\010isfwdmsg\030\024 \001("
+    "\010\022\022\n\nasneighbor\030\025 \001(\t\022\020\n\010wifecode\030\026 \001(\t\022"
+    "\020\n\010nummoves\030\005 \001(\r\022\023\n\013nodehistory\030\004 \001(\t\022\020"
+    "\n\010currnode\030\006 \001(\r\022\017\n\007numwait\030\007 \001(\r", 513);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "meta.proto", &protobuf_RegisterTypes);
   Package::default_instance_ = new Package();
@@ -127,6 +128,7 @@ struct StaticDescriptorInitializer_meta_2eproto {
 
 const ::std::string Package::_default_virtualpath_;
 const ::std::string Package::_default_realfullpath_;
+const ::std::string Package::_default_serialized_;
 const ::std::string Package::_default_opcode_;
 const ::std::string Package::_default_rcode_;
 const ::std::string Package::_default_sourcezht_;
@@ -145,6 +147,7 @@ const int Package::kIsDirFieldNumber;
 const int Package::kListItemFieldNumber;
 const int Package::kOpenModeFieldNumber;
 const int Package::kModeFieldNumber;
+const int Package::kSerializedFieldNumber;
 const int Package::kOperationFieldNumber;
 const int Package::kReplicaNoFieldNumber;
 const int Package::kOpcodeFieldNumber;
@@ -188,6 +191,7 @@ void Package::SharedCtor() {
   isdir_ = false;
   openmode_ = 0;
   mode_ = 0;
+  serialized_ = const_cast< ::std::string*>(&_default_serialized_);
   operation_ = 0;
   replicano_ = 0;
   opcode_ = const_cast< ::std::string*>(&_default_opcode_);
@@ -219,6 +223,9 @@ void Package::SharedDtor() {
   }
   if (realfullpath_ != &_default_realfullpath_) {
     delete realfullpath_;
+  }
+  if (serialized_ != &_default_serialized_) {
+    delete serialized_;
   }
   if (opcode_ != &_default_opcode_) {
     delete opcode_;
@@ -290,68 +297,73 @@ void Package::Clear() {
     isdir_ = false;
     openmode_ = 0;
     mode_ = 0;
-    operation_ = 0;
+    if (_has_bit(7)) {
+      if (serialized_ != &_default_serialized_) {
+        serialized_->clear();
+      }
+    }
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    operation_ = 0;
     replicano_ = 0;
-    if (_has_bit(9)) {
+    if (_has_bit(10)) {
       if (opcode_ != &_default_opcode_) {
         opcode_->clear();
       }
     }
-    if (_has_bit(10)) {
+    if (_has_bit(11)) {
       if (rcode_ != &_default_rcode_) {
         rcode_->clear();
       }
     }
     migrateinst_ = 0u;
     uprange_ = false;
-    if (_has_bit(13)) {
+    if (_has_bit(14)) {
       if (sourcezht_ != &_default_sourcezht_) {
         sourcezht_->clear();
       }
     }
-    if (_has_bit(14)) {
+    if (_has_bit(15)) {
       if (targetzht_ != &_default_targetzht_) {
         targetzht_->clear();
-      }
-    }
-    if (_has_bit(15)) {
-      if (rfname_ != &_default_rfname_) {
-        rfname_->clear();
       }
     }
   }
   if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (_has_bit(16)) {
+      if (rfname_ != &_default_rfname_) {
+        rfname_->clear();
+      }
+    }
+    if (_has_bit(17)) {
       if (lfname_ != &_default_lfname_) {
         lfname_->clear();
       }
     }
-    if (_has_bit(18)) {
+    if (_has_bit(19)) {
       if (gmembership_ != &_default_gmembership_) {
         gmembership_->clear();
       }
     }
     isfwdmsg_ = false;
-    if (_has_bit(20)) {
+    if (_has_bit(21)) {
       if (asneighbor_ != &_default_asneighbor_) {
         asneighbor_->clear();
       }
     }
-    if (_has_bit(21)) {
+    if (_has_bit(22)) {
       if (wifecode_ != &_default_wifecode_) {
         wifecode_->clear();
       }
     }
     nummoves_ = 0u;
-    if (_has_bit(23)) {
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
+    if (_has_bit(24)) {
       if (nodehistory_ != &_default_nodehistory_) {
         nodehistory_->clear();
       }
     }
-  }
-  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     currnode_ = 0u;
     numwait_ = 0u;
   }
@@ -441,7 +453,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &nummoves_)));
-          _set_bit(22);
+          _set_bit(23);
         } else {
           goto handle_uninterpreted;
         }
@@ -457,7 +469,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &currnode_)));
-          _set_bit(24);
+          _set_bit(25);
         } else {
           goto handle_uninterpreted;
         }
@@ -473,7 +485,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &numwait_)));
-          _set_bit(25);
+          _set_bit(26);
         } else {
           goto handle_uninterpreted;
         }
@@ -489,7 +501,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &operation_)));
-          _set_bit(7);
+          _set_bit(8);
         } else {
           goto handle_uninterpreted;
         }
@@ -505,7 +517,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &replicano_)));
-          _set_bit(8);
+          _set_bit(9);
         } else {
           goto handle_uninterpreted;
         }
@@ -555,7 +567,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &migrateinst_)));
-          _set_bit(11);
+          _set_bit(12);
         } else {
           goto handle_uninterpreted;
         }
@@ -571,7 +583,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &uprange_)));
-          _set_bit(12);
+          _set_bit(13);
         } else {
           goto handle_uninterpreted;
         }
@@ -694,7 +706,7 @@ bool Package::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &isfwdmsg_)));
-          _set_bit(19);
+          _set_bit(20);
         } else {
           goto handle_uninterpreted;
         }
@@ -729,6 +741,20 @@ bool Package::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8String(
             this->wifecode().data(), this->wifecode().length(),
             ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(186)) goto parse_serialized;
+        break;
+      }
+      
+      // optional bytes serialized = 23;
+      case 23: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_serialized:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_serialized()));
         } else {
           goto handle_uninterpreted;
         }
@@ -844,7 +870,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string nodehistory = 4;
-  if (_has_bit(23)) {
+  if (_has_bit(24)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->nodehistory().data(), this->nodehistory().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -853,32 +879,32 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional uint32 nummoves = 5;
-  if (_has_bit(22)) {
+  if (_has_bit(23)) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->nummoves(), output);
   }
   
   // optional uint32 currnode = 6;
-  if (_has_bit(24)) {
+  if (_has_bit(25)) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(6, this->currnode(), output);
   }
   
   // optional uint32 numwait = 7;
-  if (_has_bit(25)) {
+  if (_has_bit(26)) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(7, this->numwait(), output);
   }
   
   // optional int32 Operation = 8;
-  if (_has_bit(7)) {
+  if (_has_bit(8)) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(8, this->operation(), output);
   }
   
   // optional int32 replicaNo = 9;
-  if (_has_bit(8)) {
+  if (_has_bit(9)) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(9, this->replicano(), output);
   }
   
   // optional string opcode = 10;
-  if (_has_bit(9)) {
+  if (_has_bit(10)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->opcode().data(), this->opcode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -887,7 +913,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string rcode = 11;
-  if (_has_bit(10)) {
+  if (_has_bit(11)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->rcode().data(), this->rcode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -896,17 +922,17 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional uint32 migrateInst = 12;
-  if (_has_bit(11)) {
+  if (_has_bit(12)) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(12, this->migrateinst(), output);
   }
   
   // optional bool uprange = 13;
-  if (_has_bit(12)) {
+  if (_has_bit(13)) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(13, this->uprange(), output);
   }
   
   // optional string sourceZHT = 14;
-  if (_has_bit(13)) {
+  if (_has_bit(14)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->sourcezht().data(), this->sourcezht().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -915,7 +941,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string targetZHT = 15;
-  if (_has_bit(14)) {
+  if (_has_bit(15)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->targetzht().data(), this->targetzht().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -924,7 +950,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string rfname = 16;
-  if (_has_bit(15)) {
+  if (_has_bit(16)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->rfname().data(), this->rfname().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -933,7 +959,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string lfname = 17;
-  if (_has_bit(16)) {
+  if (_has_bit(17)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->lfname().data(), this->lfname().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -948,7 +974,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string gmembership = 19;
-  if (_has_bit(18)) {
+  if (_has_bit(19)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->gmembership().data(), this->gmembership().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -957,12 +983,12 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional bool isfwdmsg = 20;
-  if (_has_bit(19)) {
+  if (_has_bit(20)) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(20, this->isfwdmsg(), output);
   }
   
   // optional string asneighbor = 21;
-  if (_has_bit(20)) {
+  if (_has_bit(21)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->asneighbor().data(), this->asneighbor().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -971,12 +997,18 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string wifecode = 22;
-  if (_has_bit(21)) {
+  if (_has_bit(22)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->wifecode().data(), this->wifecode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
       22, this->wifecode(), output);
+  }
+  
+  // optional bytes serialized = 23;
+  if (_has_bit(7)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      23, this->serialized(), output);
   }
   
   // optional bool isDir = 24;
@@ -1037,7 +1069,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string nodehistory = 4;
-  if (_has_bit(23)) {
+  if (_has_bit(24)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->nodehistory().data(), this->nodehistory().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1047,32 +1079,32 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional uint32 nummoves = 5;
-  if (_has_bit(22)) {
+  if (_has_bit(23)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->nummoves(), target);
   }
   
   // optional uint32 currnode = 6;
-  if (_has_bit(24)) {
+  if (_has_bit(25)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(6, this->currnode(), target);
   }
   
   // optional uint32 numwait = 7;
-  if (_has_bit(25)) {
+  if (_has_bit(26)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(7, this->numwait(), target);
   }
   
   // optional int32 Operation = 8;
-  if (_has_bit(7)) {
+  if (_has_bit(8)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(8, this->operation(), target);
   }
   
   // optional int32 replicaNo = 9;
-  if (_has_bit(8)) {
+  if (_has_bit(9)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(9, this->replicano(), target);
   }
   
   // optional string opcode = 10;
-  if (_has_bit(9)) {
+  if (_has_bit(10)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->opcode().data(), this->opcode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1082,7 +1114,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string rcode = 11;
-  if (_has_bit(10)) {
+  if (_has_bit(11)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->rcode().data(), this->rcode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1092,17 +1124,17 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional uint32 migrateInst = 12;
-  if (_has_bit(11)) {
+  if (_has_bit(12)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(12, this->migrateinst(), target);
   }
   
   // optional bool uprange = 13;
-  if (_has_bit(12)) {
+  if (_has_bit(13)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(13, this->uprange(), target);
   }
   
   // optional string sourceZHT = 14;
-  if (_has_bit(13)) {
+  if (_has_bit(14)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->sourcezht().data(), this->sourcezht().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1112,7 +1144,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string targetZHT = 15;
-  if (_has_bit(14)) {
+  if (_has_bit(15)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->targetzht().data(), this->targetzht().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1122,7 +1154,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string rfname = 16;
-  if (_has_bit(15)) {
+  if (_has_bit(16)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->rfname().data(), this->rfname().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1132,7 +1164,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string lfname = 17;
-  if (_has_bit(16)) {
+  if (_has_bit(17)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->lfname().data(), this->lfname().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1148,7 +1180,7 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string gmembership = 19;
-  if (_has_bit(18)) {
+  if (_has_bit(19)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->gmembership().data(), this->gmembership().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1158,12 +1190,12 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional bool isfwdmsg = 20;
-  if (_has_bit(19)) {
+  if (_has_bit(20)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(20, this->isfwdmsg(), target);
   }
   
   // optional string asneighbor = 21;
-  if (_has_bit(20)) {
+  if (_has_bit(21)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->asneighbor().data(), this->asneighbor().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1173,13 +1205,20 @@ void Package::SerializeWithCachedSizes(
   }
   
   // optional string wifecode = 22;
-  if (_has_bit(21)) {
+  if (_has_bit(22)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->wifecode().data(), this->wifecode().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         22, this->wifecode(), target);
+  }
+  
+  // optional bytes serialized = 23;
+  if (_has_bit(7)) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        23, this->serialized(), target);
   }
   
   // optional bool isDir = 24;
@@ -1257,6 +1296,15 @@ int Package::ByteSize() const {
           this->mode());
     }
     
+    // optional bytes serialized = 23;
+    if (has_serialized()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->serialized());
+    }
+    
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional int32 Operation = 8;
     if (has_operation()) {
       total_size += 1 +
@@ -1264,8 +1312,6 @@ int Package::ByteSize() const {
           this->operation());
     }
     
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional int32 replicaNo = 9;
     if (has_replicano()) {
       total_size += 1 +
@@ -1313,6 +1359,8 @@ int Package::ByteSize() const {
           this->targetzht());
     }
     
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     // optional string rfname = 16;
     if (has_rfname()) {
       total_size += 2 +
@@ -1320,8 +1368,6 @@ int Package::ByteSize() const {
           this->rfname());
     }
     
-  }
-  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     // optional string lfname = 17;
     if (has_lfname()) {
       total_size += 2 +
@@ -1362,6 +1408,8 @@ int Package::ByteSize() const {
           this->nummoves());
     }
     
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     // optional string nodehistory = 4;
     if (has_nodehistory()) {
       total_size += 1 +
@@ -1369,8 +1417,6 @@ int Package::ByteSize() const {
           this->nodehistory());
     }
     
-  }
-  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     // optional uint32 currnode = 6;
     if (has_currnode()) {
       total_size += 1 +
@@ -1450,63 +1496,66 @@ void Package::MergeFrom(const Package& from) {
       set_mode(from.mode());
     }
     if (from._has_bit(7)) {
-      set_operation(from.operation());
+      set_serialized(from.serialized());
     }
   }
   if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from._has_bit(8)) {
-      set_replicano(from.replicano());
+      set_operation(from.operation());
     }
     if (from._has_bit(9)) {
-      set_opcode(from.opcode());
+      set_replicano(from.replicano());
     }
     if (from._has_bit(10)) {
-      set_rcode(from.rcode());
+      set_opcode(from.opcode());
     }
     if (from._has_bit(11)) {
-      set_migrateinst(from.migrateinst());
+      set_rcode(from.rcode());
     }
     if (from._has_bit(12)) {
-      set_uprange(from.uprange());
+      set_migrateinst(from.migrateinst());
     }
     if (from._has_bit(13)) {
-      set_sourcezht(from.sourcezht());
+      set_uprange(from.uprange());
     }
     if (from._has_bit(14)) {
-      set_targetzht(from.targetzht());
+      set_sourcezht(from.sourcezht());
     }
     if (from._has_bit(15)) {
-      set_rfname(from.rfname());
+      set_targetzht(from.targetzht());
     }
   }
   if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from._has_bit(16)) {
+      set_rfname(from.rfname());
+    }
+    if (from._has_bit(17)) {
       set_lfname(from.lfname());
     }
-    if (from._has_bit(18)) {
+    if (from._has_bit(19)) {
       set_gmembership(from.gmembership());
     }
-    if (from._has_bit(19)) {
+    if (from._has_bit(20)) {
       set_isfwdmsg(from.isfwdmsg());
     }
-    if (from._has_bit(20)) {
+    if (from._has_bit(21)) {
       set_asneighbor(from.asneighbor());
     }
-    if (from._has_bit(21)) {
+    if (from._has_bit(22)) {
       set_wifecode(from.wifecode());
     }
-    if (from._has_bit(22)) {
-      set_nummoves(from.nummoves());
-    }
     if (from._has_bit(23)) {
-      set_nodehistory(from.nodehistory());
+      set_nummoves(from.nummoves());
     }
   }
   if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     if (from._has_bit(24)) {
-      set_currnode(from.currnode());
+      set_nodehistory(from.nodehistory());
     }
     if (from._has_bit(25)) {
+      set_currnode(from.currnode());
+    }
+    if (from._has_bit(26)) {
       set_numwait(from.numwait());
     }
   }
@@ -1539,6 +1588,7 @@ void Package::Swap(Package* other) {
     listitem_.Swap(&other->listitem_);
     std::swap(openmode_, other->openmode_);
     std::swap(mode_, other->mode_);
+    std::swap(serialized_, other->serialized_);
     std::swap(operation_, other->operation_);
     std::swap(replicano_, other->replicano_);
     std::swap(opcode_, other->opcode_);

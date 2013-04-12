@@ -365,7 +365,8 @@ void submittasks(ZHTClient &clientRet) {
                 uint32_t index = map_it->first;
                 NodeList &update_list = map_it->second;
                 while(!update_list.empty()) { //cout << "str = " << update_list.front() << endl;
-                        package.set_realfullpath(update_list.front());
+                        //package.set_realfullpath(update_list.front());
+			package.set_serialized(update_list.front());
                         update_list.pop_front();
                         string update_str = package.SerializeAsString();
                         ret += clientRet.svrtosvr(update_str, update_str.size(), index);

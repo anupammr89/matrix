@@ -152,6 +152,16 @@ class Package : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 mode() const;
   inline void set_mode(::google::protobuf::int32 value);
   
+  // optional bytes serialized = 23;
+  inline bool has_serialized() const;
+  inline void clear_serialized();
+  static const int kSerializedFieldNumber = 23;
+  inline const ::std::string& serialized() const;
+  inline void set_serialized(const ::std::string& value);
+  inline void set_serialized(const char* value);
+  inline void set_serialized(const void* value, size_t size);
+  inline ::std::string* mutable_serialized();
+  
   // optional int32 Operation = 8;
   inline bool has_operation() const;
   inline void clear_operation();
@@ -334,6 +344,8 @@ class Package : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::std::string> listitem_;
   ::google::protobuf::int32 openmode_;
   ::google::protobuf::int32 mode_;
+  ::std::string* serialized_;
+  static const ::std::string _default_serialized_;
   ::google::protobuf::int32 operation_;
   ::google::protobuf::int32 replicano_;
   ::std::string* opcode_;
@@ -367,7 +379,7 @@ class Package : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_meta_2eproto();
   friend void protobuf_ShutdownFile_meta_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(26 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(27 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -582,74 +594,116 @@ inline void Package::set_mode(::google::protobuf::int32 value) {
   mode_ = value;
 }
 
+// optional bytes serialized = 23;
+inline bool Package::has_serialized() const {
+  return _has_bit(7);
+}
+inline void Package::clear_serialized() {
+  if (serialized_ != &_default_serialized_) {
+    serialized_->clear();
+  }
+  _clear_bit(7);
+}
+inline const ::std::string& Package::serialized() const {
+  return *serialized_;
+}
+inline void Package::set_serialized(const ::std::string& value) {
+  _set_bit(7);
+  if (serialized_ == &_default_serialized_) {
+    serialized_ = new ::std::string;
+  }
+  serialized_->assign(value);
+}
+inline void Package::set_serialized(const char* value) {
+  _set_bit(7);
+  if (serialized_ == &_default_serialized_) {
+    serialized_ = new ::std::string;
+  }
+  serialized_->assign(value);
+}
+inline void Package::set_serialized(const void* value, size_t size) {
+  _set_bit(7);
+  if (serialized_ == &_default_serialized_) {
+    serialized_ = new ::std::string;
+  }
+  serialized_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Package::mutable_serialized() {
+  _set_bit(7);
+  if (serialized_ == &_default_serialized_) {
+    serialized_ = new ::std::string;
+  }
+  return serialized_;
+}
+
 // optional int32 Operation = 8;
 inline bool Package::has_operation() const {
-  return _has_bit(7);
+  return _has_bit(8);
 }
 inline void Package::clear_operation() {
   operation_ = 0;
-  _clear_bit(7);
+  _clear_bit(8);
 }
 inline ::google::protobuf::int32 Package::operation() const {
   return operation_;
 }
 inline void Package::set_operation(::google::protobuf::int32 value) {
-  _set_bit(7);
+  _set_bit(8);
   operation_ = value;
 }
 
 // optional int32 replicaNo = 9;
 inline bool Package::has_replicano() const {
-  return _has_bit(8);
+  return _has_bit(9);
 }
 inline void Package::clear_replicano() {
   replicano_ = 0;
-  _clear_bit(8);
+  _clear_bit(9);
 }
 inline ::google::protobuf::int32 Package::replicano() const {
   return replicano_;
 }
 inline void Package::set_replicano(::google::protobuf::int32 value) {
-  _set_bit(8);
+  _set_bit(9);
   replicano_ = value;
 }
 
 // optional string opcode = 10;
 inline bool Package::has_opcode() const {
-  return _has_bit(9);
+  return _has_bit(10);
 }
 inline void Package::clear_opcode() {
   if (opcode_ != &_default_opcode_) {
     opcode_->clear();
   }
-  _clear_bit(9);
+  _clear_bit(10);
 }
 inline const ::std::string& Package::opcode() const {
   return *opcode_;
 }
 inline void Package::set_opcode(const ::std::string& value) {
-  _set_bit(9);
+  _set_bit(10);
   if (opcode_ == &_default_opcode_) {
     opcode_ = new ::std::string;
   }
   opcode_->assign(value);
 }
 inline void Package::set_opcode(const char* value) {
-  _set_bit(9);
+  _set_bit(10);
   if (opcode_ == &_default_opcode_) {
     opcode_ = new ::std::string;
   }
   opcode_->assign(value);
 }
 inline void Package::set_opcode(const char* value, size_t size) {
-  _set_bit(9);
+  _set_bit(10);
   if (opcode_ == &_default_opcode_) {
     opcode_ = new ::std::string;
   }
   opcode_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_opcode() {
-  _set_bit(9);
+  _set_bit(10);
   if (opcode_ == &_default_opcode_) {
     opcode_ = new ::std::string;
   }
@@ -658,40 +712,40 @@ inline ::std::string* Package::mutable_opcode() {
 
 // optional string rcode = 11;
 inline bool Package::has_rcode() const {
-  return _has_bit(10);
+  return _has_bit(11);
 }
 inline void Package::clear_rcode() {
   if (rcode_ != &_default_rcode_) {
     rcode_->clear();
   }
-  _clear_bit(10);
+  _clear_bit(11);
 }
 inline const ::std::string& Package::rcode() const {
   return *rcode_;
 }
 inline void Package::set_rcode(const ::std::string& value) {
-  _set_bit(10);
+  _set_bit(11);
   if (rcode_ == &_default_rcode_) {
     rcode_ = new ::std::string;
   }
   rcode_->assign(value);
 }
 inline void Package::set_rcode(const char* value) {
-  _set_bit(10);
+  _set_bit(11);
   if (rcode_ == &_default_rcode_) {
     rcode_ = new ::std::string;
   }
   rcode_->assign(value);
 }
 inline void Package::set_rcode(const char* value, size_t size) {
-  _set_bit(10);
+  _set_bit(11);
   if (rcode_ == &_default_rcode_) {
     rcode_ = new ::std::string;
   }
   rcode_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_rcode() {
-  _set_bit(10);
+  _set_bit(11);
   if (rcode_ == &_default_rcode_) {
     rcode_ = new ::std::string;
   }
@@ -700,72 +754,72 @@ inline ::std::string* Package::mutable_rcode() {
 
 // optional uint32 migrateInst = 12;
 inline bool Package::has_migrateinst() const {
-  return _has_bit(11);
+  return _has_bit(12);
 }
 inline void Package::clear_migrateinst() {
   migrateinst_ = 0u;
-  _clear_bit(11);
+  _clear_bit(12);
 }
 inline ::google::protobuf::uint32 Package::migrateinst() const {
   return migrateinst_;
 }
 inline void Package::set_migrateinst(::google::protobuf::uint32 value) {
-  _set_bit(11);
+  _set_bit(12);
   migrateinst_ = value;
 }
 
 // optional bool uprange = 13;
 inline bool Package::has_uprange() const {
-  return _has_bit(12);
+  return _has_bit(13);
 }
 inline void Package::clear_uprange() {
   uprange_ = false;
-  _clear_bit(12);
+  _clear_bit(13);
 }
 inline bool Package::uprange() const {
   return uprange_;
 }
 inline void Package::set_uprange(bool value) {
-  _set_bit(12);
+  _set_bit(13);
   uprange_ = value;
 }
 
 // optional string sourceZHT = 14;
 inline bool Package::has_sourcezht() const {
-  return _has_bit(13);
+  return _has_bit(14);
 }
 inline void Package::clear_sourcezht() {
   if (sourcezht_ != &_default_sourcezht_) {
     sourcezht_->clear();
   }
-  _clear_bit(13);
+  _clear_bit(14);
 }
 inline const ::std::string& Package::sourcezht() const {
   return *sourcezht_;
 }
 inline void Package::set_sourcezht(const ::std::string& value) {
-  _set_bit(13);
+  _set_bit(14);
   if (sourcezht_ == &_default_sourcezht_) {
     sourcezht_ = new ::std::string;
   }
   sourcezht_->assign(value);
 }
 inline void Package::set_sourcezht(const char* value) {
-  _set_bit(13);
+  _set_bit(14);
   if (sourcezht_ == &_default_sourcezht_) {
     sourcezht_ = new ::std::string;
   }
   sourcezht_->assign(value);
 }
 inline void Package::set_sourcezht(const char* value, size_t size) {
-  _set_bit(13);
+  _set_bit(14);
   if (sourcezht_ == &_default_sourcezht_) {
     sourcezht_ = new ::std::string;
   }
   sourcezht_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_sourcezht() {
-  _set_bit(13);
+  _set_bit(14);
   if (sourcezht_ == &_default_sourcezht_) {
     sourcezht_ = new ::std::string;
   }
@@ -774,40 +828,40 @@ inline ::std::string* Package::mutable_sourcezht() {
 
 // optional string targetZHT = 15;
 inline bool Package::has_targetzht() const {
-  return _has_bit(14);
+  return _has_bit(15);
 }
 inline void Package::clear_targetzht() {
   if (targetzht_ != &_default_targetzht_) {
     targetzht_->clear();
   }
-  _clear_bit(14);
+  _clear_bit(15);
 }
 inline const ::std::string& Package::targetzht() const {
   return *targetzht_;
 }
 inline void Package::set_targetzht(const ::std::string& value) {
-  _set_bit(14);
+  _set_bit(15);
   if (targetzht_ == &_default_targetzht_) {
     targetzht_ = new ::std::string;
   }
   targetzht_->assign(value);
 }
 inline void Package::set_targetzht(const char* value) {
-  _set_bit(14);
+  _set_bit(15);
   if (targetzht_ == &_default_targetzht_) {
     targetzht_ = new ::std::string;
   }
   targetzht_->assign(value);
 }
 inline void Package::set_targetzht(const char* value, size_t size) {
-  _set_bit(14);
+  _set_bit(15);
   if (targetzht_ == &_default_targetzht_) {
     targetzht_ = new ::std::string;
   }
   targetzht_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_targetzht() {
-  _set_bit(14);
+  _set_bit(15);
   if (targetzht_ == &_default_targetzht_) {
     targetzht_ = new ::std::string;
   }
@@ -816,40 +870,40 @@ inline ::std::string* Package::mutable_targetzht() {
 
 // optional string rfname = 16;
 inline bool Package::has_rfname() const {
-  return _has_bit(15);
+  return _has_bit(16);
 }
 inline void Package::clear_rfname() {
   if (rfname_ != &_default_rfname_) {
     rfname_->clear();
   }
-  _clear_bit(15);
+  _clear_bit(16);
 }
 inline const ::std::string& Package::rfname() const {
   return *rfname_;
 }
 inline void Package::set_rfname(const ::std::string& value) {
-  _set_bit(15);
+  _set_bit(16);
   if (rfname_ == &_default_rfname_) {
     rfname_ = new ::std::string;
   }
   rfname_->assign(value);
 }
 inline void Package::set_rfname(const char* value) {
-  _set_bit(15);
+  _set_bit(16);
   if (rfname_ == &_default_rfname_) {
     rfname_ = new ::std::string;
   }
   rfname_->assign(value);
 }
 inline void Package::set_rfname(const char* value, size_t size) {
-  _set_bit(15);
+  _set_bit(16);
   if (rfname_ == &_default_rfname_) {
     rfname_ = new ::std::string;
   }
   rfname_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_rfname() {
-  _set_bit(15);
+  _set_bit(16);
   if (rfname_ == &_default_rfname_) {
     rfname_ = new ::std::string;
   }
@@ -858,40 +912,40 @@ inline ::std::string* Package::mutable_rfname() {
 
 // optional string lfname = 17;
 inline bool Package::has_lfname() const {
-  return _has_bit(16);
+  return _has_bit(17);
 }
 inline void Package::clear_lfname() {
   if (lfname_ != &_default_lfname_) {
     lfname_->clear();
   }
-  _clear_bit(16);
+  _clear_bit(17);
 }
 inline const ::std::string& Package::lfname() const {
   return *lfname_;
 }
 inline void Package::set_lfname(const ::std::string& value) {
-  _set_bit(16);
+  _set_bit(17);
   if (lfname_ == &_default_lfname_) {
     lfname_ = new ::std::string;
   }
   lfname_->assign(value);
 }
 inline void Package::set_lfname(const char* value) {
-  _set_bit(16);
+  _set_bit(17);
   if (lfname_ == &_default_lfname_) {
     lfname_ = new ::std::string;
   }
   lfname_->assign(value);
 }
 inline void Package::set_lfname(const char* value, size_t size) {
-  _set_bit(16);
+  _set_bit(17);
   if (lfname_ == &_default_lfname_) {
     lfname_ = new ::std::string;
   }
   lfname_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_lfname() {
-  _set_bit(16);
+  _set_bit(17);
   if (lfname_ == &_default_lfname_) {
     lfname_ = new ::std::string;
   }
@@ -925,40 +979,40 @@ Package::mutable_migringpos() {
 
 // optional string gmembership = 19;
 inline bool Package::has_gmembership() const {
-  return _has_bit(18);
+  return _has_bit(19);
 }
 inline void Package::clear_gmembership() {
   if (gmembership_ != &_default_gmembership_) {
     gmembership_->clear();
   }
-  _clear_bit(18);
+  _clear_bit(19);
 }
 inline const ::std::string& Package::gmembership() const {
   return *gmembership_;
 }
 inline void Package::set_gmembership(const ::std::string& value) {
-  _set_bit(18);
+  _set_bit(19);
   if (gmembership_ == &_default_gmembership_) {
     gmembership_ = new ::std::string;
   }
   gmembership_->assign(value);
 }
 inline void Package::set_gmembership(const char* value) {
-  _set_bit(18);
+  _set_bit(19);
   if (gmembership_ == &_default_gmembership_) {
     gmembership_ = new ::std::string;
   }
   gmembership_->assign(value);
 }
 inline void Package::set_gmembership(const char* value, size_t size) {
-  _set_bit(18);
+  _set_bit(19);
   if (gmembership_ == &_default_gmembership_) {
     gmembership_ = new ::std::string;
   }
   gmembership_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_gmembership() {
-  _set_bit(18);
+  _set_bit(19);
   if (gmembership_ == &_default_gmembership_) {
     gmembership_ = new ::std::string;
   }
@@ -967,56 +1021,56 @@ inline ::std::string* Package::mutable_gmembership() {
 
 // optional bool isfwdmsg = 20;
 inline bool Package::has_isfwdmsg() const {
-  return _has_bit(19);
+  return _has_bit(20);
 }
 inline void Package::clear_isfwdmsg() {
   isfwdmsg_ = false;
-  _clear_bit(19);
+  _clear_bit(20);
 }
 inline bool Package::isfwdmsg() const {
   return isfwdmsg_;
 }
 inline void Package::set_isfwdmsg(bool value) {
-  _set_bit(19);
+  _set_bit(20);
   isfwdmsg_ = value;
 }
 
 // optional string asneighbor = 21;
 inline bool Package::has_asneighbor() const {
-  return _has_bit(20);
+  return _has_bit(21);
 }
 inline void Package::clear_asneighbor() {
   if (asneighbor_ != &_default_asneighbor_) {
     asneighbor_->clear();
   }
-  _clear_bit(20);
+  _clear_bit(21);
 }
 inline const ::std::string& Package::asneighbor() const {
   return *asneighbor_;
 }
 inline void Package::set_asneighbor(const ::std::string& value) {
-  _set_bit(20);
+  _set_bit(21);
   if (asneighbor_ == &_default_asneighbor_) {
     asneighbor_ = new ::std::string;
   }
   asneighbor_->assign(value);
 }
 inline void Package::set_asneighbor(const char* value) {
-  _set_bit(20);
+  _set_bit(21);
   if (asneighbor_ == &_default_asneighbor_) {
     asneighbor_ = new ::std::string;
   }
   asneighbor_->assign(value);
 }
 inline void Package::set_asneighbor(const char* value, size_t size) {
-  _set_bit(20);
+  _set_bit(21);
   if (asneighbor_ == &_default_asneighbor_) {
     asneighbor_ = new ::std::string;
   }
   asneighbor_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_asneighbor() {
-  _set_bit(20);
+  _set_bit(21);
   if (asneighbor_ == &_default_asneighbor_) {
     asneighbor_ = new ::std::string;
   }
@@ -1025,40 +1079,40 @@ inline ::std::string* Package::mutable_asneighbor() {
 
 // optional string wifecode = 22;
 inline bool Package::has_wifecode() const {
-  return _has_bit(21);
+  return _has_bit(22);
 }
 inline void Package::clear_wifecode() {
   if (wifecode_ != &_default_wifecode_) {
     wifecode_->clear();
   }
-  _clear_bit(21);
+  _clear_bit(22);
 }
 inline const ::std::string& Package::wifecode() const {
   return *wifecode_;
 }
 inline void Package::set_wifecode(const ::std::string& value) {
-  _set_bit(21);
+  _set_bit(22);
   if (wifecode_ == &_default_wifecode_) {
     wifecode_ = new ::std::string;
   }
   wifecode_->assign(value);
 }
 inline void Package::set_wifecode(const char* value) {
-  _set_bit(21);
+  _set_bit(22);
   if (wifecode_ == &_default_wifecode_) {
     wifecode_ = new ::std::string;
   }
   wifecode_->assign(value);
 }
 inline void Package::set_wifecode(const char* value, size_t size) {
-  _set_bit(21);
+  _set_bit(22);
   if (wifecode_ == &_default_wifecode_) {
     wifecode_ = new ::std::string;
   }
   wifecode_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_wifecode() {
-  _set_bit(21);
+  _set_bit(22);
   if (wifecode_ == &_default_wifecode_) {
     wifecode_ = new ::std::string;
   }
@@ -1067,56 +1121,56 @@ inline ::std::string* Package::mutable_wifecode() {
 
 // optional uint32 nummoves = 5;
 inline bool Package::has_nummoves() const {
-  return _has_bit(22);
+  return _has_bit(23);
 }
 inline void Package::clear_nummoves() {
   nummoves_ = 0u;
-  _clear_bit(22);
+  _clear_bit(23);
 }
 inline ::google::protobuf::uint32 Package::nummoves() const {
   return nummoves_;
 }
 inline void Package::set_nummoves(::google::protobuf::uint32 value) {
-  _set_bit(22);
+  _set_bit(23);
   nummoves_ = value;
 }
 
 // optional string nodehistory = 4;
 inline bool Package::has_nodehistory() const {
-  return _has_bit(23);
+  return _has_bit(24);
 }
 inline void Package::clear_nodehistory() {
   if (nodehistory_ != &_default_nodehistory_) {
     nodehistory_->clear();
   }
-  _clear_bit(23);
+  _clear_bit(24);
 }
 inline const ::std::string& Package::nodehistory() const {
   return *nodehistory_;
 }
 inline void Package::set_nodehistory(const ::std::string& value) {
-  _set_bit(23);
+  _set_bit(24);
   if (nodehistory_ == &_default_nodehistory_) {
     nodehistory_ = new ::std::string;
   }
   nodehistory_->assign(value);
 }
 inline void Package::set_nodehistory(const char* value) {
-  _set_bit(23);
+  _set_bit(24);
   if (nodehistory_ == &_default_nodehistory_) {
     nodehistory_ = new ::std::string;
   }
   nodehistory_->assign(value);
 }
 inline void Package::set_nodehistory(const char* value, size_t size) {
-  _set_bit(23);
+  _set_bit(24);
   if (nodehistory_ == &_default_nodehistory_) {
     nodehistory_ = new ::std::string;
   }
   nodehistory_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Package::mutable_nodehistory() {
-  _set_bit(23);
+  _set_bit(24);
   if (nodehistory_ == &_default_nodehistory_) {
     nodehistory_ = new ::std::string;
   }
@@ -1125,33 +1179,33 @@ inline ::std::string* Package::mutable_nodehistory() {
 
 // optional uint32 currnode = 6;
 inline bool Package::has_currnode() const {
-  return _has_bit(24);
+  return _has_bit(25);
 }
 inline void Package::clear_currnode() {
   currnode_ = 0u;
-  _clear_bit(24);
+  _clear_bit(25);
 }
 inline ::google::protobuf::uint32 Package::currnode() const {
   return currnode_;
 }
 inline void Package::set_currnode(::google::protobuf::uint32 value) {
-  _set_bit(24);
+  _set_bit(25);
   currnode_ = value;
 }
 
 // optional uint32 numwait = 7;
 inline bool Package::has_numwait() const {
-  return _has_bit(25);
+  return _has_bit(26);
 }
 inline void Package::clear_numwait() {
   numwait_ = 0u;
-  _clear_bit(25);
+  _clear_bit(26);
 }
 inline ::google::protobuf::uint32 Package::numwait() const {
   return numwait_;
 }
 inline void Package::set_numwait(::google::protobuf::uint32 value) {
-  _set_bit(25);
+  _set_bit(26);
   numwait_ = value;
 }
 
