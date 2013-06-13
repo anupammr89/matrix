@@ -763,20 +763,13 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 //Workstealing functions
 
 	int32_t err;
-
-		case 20: {
-                //insert tasks into wait queue
+		case 19: {
+                //check if zht insert done
                 if (package.virtualpath().empty()) {
                         operation_status = -1;
                 } else {
-                        //cout << "Insert tasks into wait queue..." << endl;
-                        //operation_status = worker.HB_insertQ_new(pmap, package);
-                        /*string *str;
-                        str = new string(package.SerializeAsString());
-                        pthread_mutex_lock(&zht_ins_lock);
-                        zht_ins.push(str);
-                        pthread_mutex_unlock(&zht_ins_lock);*/
-                        err = worker->zht_ins_mul(package);
+                        //cout << "check if zht insert done..." << endl;
+			err = worker->get_ret_status(package.virtualpath());
                 }
 
                 if (TCP == true) {
@@ -786,13 +779,45 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                                         (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
                 }
 
-                msg_count[7]++;
+                msg_count[5]++;
 
                 if (r <= 0) {
-                        cout << "Insert_waitq: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                        cout << "check if zht insert done: Server could not send acknowledgement to client: sendto r = " << r << endl;
                 }
 
-                msg_count[7]++;
+                msg_count[5]++;
+        }
+                break;
+
+		case 20: {
+                //insert tasks into zht
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        //cout << "Insert tasks into zht..." << endl;
+                        string *str;
+                        str = new string(package.SerializeAsString());
+                        pthread_mutex_lock(&zht_ins_lock);
+                        zht_ins.push(str);
+			pthread_cond_signal(&zhtinsqueue_notempty);
+                        pthread_mutex_unlock(&zht_ins_lock); err = 0;
+                        //err = worker->zht_ins_mul(package);
+                }
+
+                if (TCP == true) {
+                        r = send(client_sock, &err, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &err, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+
+                msg_count[4]++;
+
+                if (r <= 0) {
+                        cout << "Insert tasks into zht: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+
+                msg_count[4]++;
         }
                 break;
 
@@ -807,6 +832,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                         str = new string(package.SerializeAsString());
                         pthread_mutex_lock(&waitq_lock);
                         waitq.push(str);
+			pthread_cond_signal(&insertqueue_notempty);
                         pthread_mutex_unlock(&waitq_lock);
                 }
                 
@@ -817,13 +843,13 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                                         (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
                 }
 
-                msg_count[7]++;
+                msg_count[6]++;
 
                 if (r <= 0) {
                         cout << "Insert_waitq: Server could not send acknowledgement to client: sendto r = " << r << endl;
                 }
 
-                msg_count[7]++;
+                msg_count[6]++;
         }
                 break;
 
@@ -833,12 +859,12 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                         operation_status = -1;
                 } else {
                         //cout << "Insert tasks into ready queue..." << endl;
-                        //operation_status = worker.HB_insertQ_new(pmap, package);
                         string *str;
                         str = new string(package.SerializeAsString());
-                        pthread_mutex_lock(&iq_new_lock);
-                        insertq_new.push(str);
-                        pthread_mutex_unlock(&iq_new_lock);
+                        pthread_mutex_lock(&iq_lock);
+                        insertq.push(str);
+			pthread_cond_signal(&insertqueue_notempty);
+                        pthread_mutex_unlock(&iq_lock);
                 }
 
                 if (TCP == true) {
@@ -875,13 +901,13 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                                         (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
                 }
 
-                msg_count[7]++;
+                msg_count[8]++;
 
                 if (r <= 0) {
                         cout << "check_if_task_is_ready: Server could not send acknowledgement to client: sendto r = " << r << endl;
                 }
 
-                msg_count[7]++;
+                msg_count[8]++;
         }
                 break;
 		case 25: {
@@ -894,6 +920,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                         str = new string(package.SerializeAsString());
                         pthread_mutex_lock(&notq_lock);
                         notifyq.push(str);
+			pthread_cond_signal(&notqueue_notempty);
                         pthread_mutex_unlock(&notq_lock);
 			//worker->update(package);
                 }
@@ -905,13 +932,13 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                                         (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
                 }
 
-                msg_count[8]++;
+                msg_count[9]++;
 
                 if (r <= 0) {
                         cout << "update ZHT: Server could not send acknowledgement to client: sendto r = " << r << endl;
                 }
 
-                msg_count[8]++;
+                msg_count[9]++;
         }
                 break;
 		/*case 12: {
@@ -988,7 +1015,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 
 		//buff1 = &operation_status;
 
-		msg_count[4]++;
+		msg_count[10]++;
 
 		if (TCP == true) {
 			if(LOGGING) {
@@ -1000,7 +1027,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 					(struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
 		}
 
-		msg_count[4]++;
+		msg_count[10]++;
 
 		if (r <= 0) {
 			cout
@@ -1022,7 +1049,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 			//num_task = (rqueue.size() - worker->num_idle_cores)/2;     // Get the current load
 			
 		}
-		msg_count[5]++;
+		msg_count[11]++;
 
 		//cout << "server_general: Sending " << num_task << " tasks" << endl;
 		//buff1 = &operation_status;
@@ -1032,7 +1059,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 			r = sendto(client_sock, &num_task, sizeof(int32_t), 0,
 					(struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
 		}
-		msg_count[5]++;
+		msg_count[11]++;
 
 		if (r <= 0) {
 			cout
@@ -1096,7 +1123,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                 }
 
                 //buff1 = &operation_status;
-		msg_count[6]++;
+		msg_count[12]++;
 		if (TCP == true) {
                         if(LOGGING) {
                                 log_fp << "MONITORING INFORMATION = " << load << endl;
@@ -1106,7 +1133,7 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
                         r = sendto(client_sock, &load, sizeof(int32_t), 0,
                                         (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
                 }
-		msg_count[6]++;
+		msg_count[12]++;
                 if (r <= 0) {
                         cout
                                         << "Monitoring Info: Server could not send monitoring information to client: sendto r = "
@@ -1117,6 +1144,85 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
         }
                 break;
 
+	case 16:
+	{
+		uint32_t duration = 0;
+		if (package.virtualpath().empty()) {
+			operation_status = -1;
+		} else {
+			// Task Lookup
+			if(package.realfullpath().compare("task_desc") == 0) {
+				duration = worker->get_task_desc(package.virtualpath());
+			}
+
+			/*if (result.compare("Empty") == 0) {
+				operation_status = -2;
+			} else {
+				operation_status = 0;
+			}*/
+		}
+		msg_count[13]++;
+		/*buff1 = &operation_status;
+		char statusBuff[3];
+		sprintf(statusBuff, "%03d", operation_status);
+		string sAllInOne;
+		sAllInOne.append(statusBuff);
+		sAllInOne.append(result);
+		int sentSize = generalSendBack(client_sock, sAllInOne.c_str(), sAllInOne.size(),
+				fromAddr, 0, TCP);*/
+		if (TCP == true) {
+                        r = send(client_sock, &duration, sizeof(uint32_t), 0);
+                } else {
+                        r = sendto(client_sock, &duration, sizeof(uint32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+		msg_count[13]++;
+	}
+		break;
+
+	case 17:
+        {
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        // Insert task into complete queue
+			err = worker->notify(package.virtualpath());
+                }
+                msg_count[14]++;
+		if (TCP == true) {
+                        r = send(client_sock, &err, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &err, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+		if (r <= 0) {
+                        cout << "Insert task into complete queue: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+                msg_count[14]++;
+        }
+                break;
+
+	case 18:
+        {
+                if (package.virtualpath().empty()) {
+                        operation_status = -1;
+                } else {
+                        // move task into from wait queue to ready queue
+                        err = worker->move(package.virtualpath());
+                }
+                msg_count[8]++;
+                if (TCP == true) {
+                        r = send(client_sock, &err, sizeof(int32_t), 0);
+                } else {
+                        r = sendto(client_sock, &err, sizeof(int32_t), 0,
+                                        (struct sockaddr *) &fromAddr, sizeof(struct sockaddr));
+                }
+                if (r <= 0) {
+                        cout << "move task into from wait queue to ready queue: Server could not send acknowledgement to client: sendto r = " << r << endl;
+                }
+                msg_count[8]++;
+        }
+                break;
 
 	case 98: {
 		//Job Completed
@@ -1134,13 +1240,20 @@ void dataService(int client_sock, void* buff, sockaddr_in fromAddr,
 			fin_fp << "ZHT Lookup = " << msg_count[0] << endl;
 			fin_fp << "ZHT Remove = " << msg_count[1] << endl;
 			fin_fp << "ZHT Append = " << msg_count[3] << endl;
-			fin_fp << "MATRIX Insert = " << msg_count[7] << endl;
-			fin_fp << "MATRIX load info = " << msg_count[4] << endl;
-			fin_fp << "MATRIX stealing = " << msg_count[5] << endl;
-			fin_fp << "Client Monitoring = " << msg_count[6] << endl;
+			fin_fp << "MATRIX Insert_ZHT = " << msg_count[4] << endl;
+			fin_fp << "MATRIX Check_ZHT = " << msg_count[5] << endl;
+			fin_fp << "MATRIX Insert_waitqueue = " << msg_count[6] << endl;
+			fin_fp << "MATRIX Insert_readyqueue = " << msg_count[7] << endl;
+			fin_fp << "MATRIX Check_if_task_ready = " << msg_count[8] << endl;
+			fin_fp << "MATRIX Update_ZHT = " << msg_count[9] << endl;
+			fin_fp << "MATRIX load_info = " << msg_count[10] << endl;
+			fin_fp << "MATRIX stealing = " << msg_count[11] << endl;
+			fin_fp << "Client Monitoring = " << msg_count[12] << endl;
+			fin_fp << "MATRIX Task_lookup = " << msg_count[13] << endl;
+			fin_fp << "MATRIX Insert_completeq = " << msg_count[14] << endl;
 			cout << worker->ip << ":Turned off work stealing server\n";
 			
-			for(int  i = 0; i < 10; i++) {
+			for(int  i = 0; i < NUM_MSG; i++) {
 				total_s_msg_count += msg_count[i];
 			}
 		}
@@ -1261,10 +1374,10 @@ int main(int argc, char *argv[]) {
 //----------- Settings about ZHT server----------------
 // General version, work for both TCP and UDP.
 //	cout << "Use: hash-phm <port> <neighbor_list_file> <config_file>" << endl;
-	if (argc != 11) { //or 3?
+	if (argc != 9) { //or 3?
 		//fprintf(stderr, "Usage: %s [port]\n", argv[0]);
 		cout << "argc = " << argc << endl;
-		cout << "Usage: " << argv[0] << "\tserver_port_no\tneighbor_file\tconfig_file\tProtocol[TCP/UDP]\tUsername\tLogging[0/1]\tmax_tasks_per_package\tnum_tasks\tprefix\tshared" << endl;
+		cout << "Usage: " << argv[0] << "\tserver_port_no\tneighbor_file\tconfig_file\tProtocol[TCP/UDP]\tLogging[0/1]\tnum_tasks\tprefix\tshared" << endl;
 		exit(EXIT_FAILURE);
 	}
 //cout << " 1";

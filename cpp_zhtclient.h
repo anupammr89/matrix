@@ -34,6 +34,7 @@ public:
 	int index2SockLRU(int index, bool tcp);
 	int32_t send(string str, int size); 		   // general send
 	int32_t svrtosvr(string str, int size, int index); // send to specific server
+	int task_lookup(string str, int size, int index, string &returnStr); // get task description
 
 private:
 	static int UDP_SOCKET;

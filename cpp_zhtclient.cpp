@@ -625,5 +625,68 @@ int32_t ZHTClient::svrtosvr(string str, int size, int index) {
 	return ret_1;
 }
 
+int ZHTClient::task_lookup(string str, int size, int index, string &returnStr) {
+
+	Package package;
+	package.ParseFromString(str);
+
+	if (package.virtualpath().empty()) //empty key not allowed.
+		return -1;
+
+        char *c_str;
+        c_str = (char*)malloc((size + 5 + 1) * sizeof(char));
+        if(c_str == NULL){
+                cout << "ZHTClient::svrtosvr: " << strerror(errno) << endl;
+                exit(1);
+        }
+        int len = copystring(c_str, str);
+
+	int sock = this->index2SockLRU(index, TCP);
+	reuseSock(sock);
+
+	struct HostEntity dest = this->index2Host(index);
+	sockaddr_in recvAddr;	//cout << "lookup str = " << str << endl;
+	int sentSize = generalSendTo(dest.host.data(), dest.port, sock, c_str, len, TCP);
+	char buff[Env::MAX_MSG_SIZE]; //Env::MAX_MSG_SIZE
+	memset(buff, 0, sizeof(buff));
+	int rcv_size = -1;
+	int status = -1;
+	string sRecv;
+	string sStatus;
+
+	//if (sentSize == str.length()) { //this only work for TCP. UDP need to make a new one so accept returns from server.
+	if (sentSize == len) {
+		rcv_size = generalReceive(sock, (void*) buff, sizeof(buff), recvAddr, 0,
+				TCP);
+
+		if (rcv_size < 0) {
+			cout << "Task Lookup receive error." << endl;
+		} else {
+			//cout << "ZHTClient::task_lookup: buff = " << buff << " size = " << rcv_size << endl;
+			sRecv.assign(buff); //cout << "ZHTClient::task_lookup: for key " << package.virtualpath() << " recd = "  << sRecv << endl;
+			try {
+			returnStr = sRecv.substr(3); //the left is real thing need to be deserilized.
+			}
+			catch (exception& e) {
+                                cout << "ZHTClient::task_lookup: (substr(3)) " << " " << e.what() << endl;
+				cout << "buff = " << buff << " size = " << rcv_size << endl;
+                        	exit(1);
+                        }
+			try {
+			sStatus = sRecv.substr(0, 3); //the first three chars means status code, like 001, 002, -98, -99 and so on.
+			}
+			catch (exception& e) {
+                                cout << "ZHTClient::task_lookup: (substr(0, 3)) " << " " << e.what() << endl;
+				cout << "buff = " << buff << " size = " << rcv_size << endl;
+                                exit(1);
+                        }
+		}
+	}
+	if (!sStatus.empty())
+		status = atoi(sStatus.c_str());
+
+	return status;
+}
+
 //===================================================================================================================
 

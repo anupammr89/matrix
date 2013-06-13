@@ -21,7 +21,17 @@
 #define SIXTY_KILOBYTES 61440
 #define STRING_THRESHOLD SIXTY_KILOBYTES
 
+#define INITIAL_WAIT_TIME 1000
+#define WAIT_THRESHOLD 1000000
+#define MID_THRESH 500
+#define MID_WAIT_TIME 100000
+#define MID_THRESHOLD 10000000
+#define FAIL_THRESHOLD 100
+
+#define NUM_COMPUTE_SLOTS 4
+
 typedef deque<TaskQueue_Item*> TaskQueue;
+typedef list<TaskQueue_Item*> WaitQueue;
 typedef deque<string> NodeList;
 typedef pair<string, vector<string> > ComPair;
 typedef deque<ComPair> CompQueue;
@@ -52,6 +62,8 @@ public:
 	long poll_threshold;// Threshold beyond which polling interval should not double
 	ZHTClient svrclient;	// for server to server communication
 	
+	int execute(TaskQueue_Item *qi);
+
 	int recv_tasks();
 	int32_t get_max_load();
 	void choose_neigh();
@@ -60,13 +72,18 @@ public:
 	int32_t get_monitoring_info();
 	int32_t get_numtasks_to_steal();
 
+	int32_t get_ret_status(string client_id);
+
 	int check_if_task_is_ready(string key);
 	int move_task_to_ready_queue(TaskQueue_Item **qi);
+	int move_task_to_ready_queue(string key, int index);
+	int move(string key);
 
 	int notify(ComPair &compair);
-
+	int notify(string key);
 	int zht_ins_mul(Package &package);
 
+	uint32_t get_task_desc(string key);
 	string zht_lookup(string key);
 	int zht_insert(string str);
 	int zht_remove(string key);
@@ -86,33 +103,37 @@ extern int ON;
 
 extern ofstream fin_fp;
 extern ofstream log_fp;
-extern long msg_count[10];
+#define NUM_MSG 20
+extern long msg_count[NUM_MSG];
 
 extern long task_comp_count;
 
-//extern queue<string*> insertq;
+extern queue<string*> zht_ins;
 extern queue<string*> waitq;
-extern queue<string*> insertq_new;
+extern queue<string*> insertq;
 extern queue<int*> migrateq;
 extern bitvec migratev;
 
 extern queue<string*> notifyq;
 
-//extern pthread_mutex_t iq_lock;
+extern pthread_mutex_t zht_ins_lock;
 extern pthread_mutex_t waitq_lock;
-extern pthread_mutex_t iq_new_lock;
+extern pthread_mutex_t iq_lock;
 extern pthread_mutex_t mq_lock;
 extern pthread_mutex_t notq_lock;
+
+extern pthread_cond_t zhtinsqueue_notempty;
+extern pthread_cond_t insertqueue_notempty;
+extern pthread_cond_t notqueue_notempty;
 
 //void work_steal_init(char *parameters[], NoVoHT *pmap);
 void* worksteal(void* args);
 void* check_wait_queue(void* args);
-void* check_ready_queue(void* args);
+void* execute_thread(void* args);
 void* check_complete_queue(void* args);
 
-void* HB_insertQ(void* args);
-void* HB_insertQ_new(void* args);
-void* HB_localinsertQ(void* args);
+void* zht_ins_queue(void* args);
+void* QueueInsert(void* args);
 void* migrateTasks(void* args);
 void* notQueue(void* args);
 
