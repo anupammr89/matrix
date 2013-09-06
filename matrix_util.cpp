@@ -14,12 +14,56 @@ char* Env_var::userName;
 bool Env_var::TCP;
 int Env_var::num_tasks;
 
+/*	Tony_Challenger */
+//string prefix("/intrepid-fs0/users/tonglin/persistent/anupam/logs/");
+//string prefix("/dev/shm/logs/");
+//string shared("/intrepid-fs0/users/tonglin/persistent/anupam/");
 string prefix;
 string shared;
+//string shared("/intrepid-fs1/users/tonglin/scratch/anupam/");
+
+/*	anupam@datasys
+string prefix("/home/anupam/logs/");
+string shared("/home/anupam/logs/");
+*/
+
+/*	HEC	
+string prefix("/export/home/arajend/logs/");
+string shared("/export/home/arajend/");
+//string prefix("/mnt/common/arajend/logs/");
+//string shared("/mnt/common/arajend/logs/");
+*/
+
+/*	arajend5@Fusion
+string prefix("/home/arajend5/logs/");
+string shared("/home/arajend5/logs/");
+*/
+
+/*	Ioan SiCortex
+string prefix("/home/iraicu/anupam/logs/");
+string shared("/home/iraicu/anupam/logs/");
+*/
 
 void set_dir(string p, string s){
         prefix.append(p);
         shared.append(s);
+}
+
+static pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER; // Lock for ready queue pthread_mutex_lock (&mutex_ready);
+
+Mutex::Mutex() {
+	int ret = pthread_mutex_init (&mutex, NULL);
+}
+
+Mutex::~Mutex() {
+}
+
+int Mutex::Lock() {
+	return (pthread_mutex_lock (&mutex));
+}
+
+int Mutex::Unlock() {
+	return (pthread_mutex_unlock (&mutex));
 }
 
 Env_var::Env_var() {
@@ -41,8 +85,8 @@ void Env_var::set_env_var(char *parameters[]) {
 	isTCP = parameters[4];
 	userName = parameters[5];
 	LOGGING = atoi(parameters[6]);
-	max_tasks_per_package = 1000;
-	num_tasks = atoi(parameters[7]);
+	max_tasks_per_package = atoi(parameters[7]);
+	num_tasks = atoi(parameters[8]);
 
 	if (!strcmp("TCP", isTCP)) {
 		TCP = true;
@@ -329,4 +373,142 @@ uint32_t bitvec::pop() {
         dec(large_index);
         return large_index;
 }
+
+/*
+// get length of TaskQueue
+long TaskQueue::get_length()
+{	
+	//pthread_mutex_lock (&mutex_ready);
+	//mutex.Lock();
+	return TaskQueue_length;
+	//pthread_mutex_unlock (&mutex_ready);
+	//mutex.Unlock();
+}
+
+
+// remove the head element of the TaskQueue if queue length > 0
+TaskQueue_Item* TaskQueue::get_exec_desc() {
+	TaskQueue_Item *item = NULL;
+	//mutex.Lock();
+	if (get_length() > 0) {
+		item = remove_element();
+	}
+	//mutex.Unlock();
+	return item;
+}
+
+
+// add element to a TaskQueue 
+void TaskQueue::add_element(TaskQueue_Item* qi)
+{
+	
+	//pthread_mutex_lock (&mutex_ready);
+	//mutex.Lock();
+	
+	TaskQueue_Item *new_item = new TaskQueue_Item();
+	if(new_item == NULL)
+	{
+		cout << "new failed when adding element to the TaskQueue!\n";
+		return;
+	}	
+	
+	new_item->task_id = qi->task_id;
+	new_item->num_moves = qi->num_moves;
+
+	if(head == NULL && tail == NULL)
+	{	
+		head = tail = new_item;
+		TaskQueue_length += 1;
+	}
+	else if(head == NULL || tail == NULL)
+	{	
+		cout << "The TaskQueue is not in the correct format, please check!\n";
+	}
+	else
+	{	
+		tail->next = new_item;
+		tail = new_item;
+		TaskQueue_length += 1;
+	}									
+	//pthread_mutex_unlock (&mutex_ready);
+	//mutex.Unlock();
+}
+
+// remove the head element of the TaskQueue
+TaskQueue_Item* TaskQueue::remove_element()
+{
+	//mutex.Lock();
+	//pthread_mutex_lock (&mutex_ready);
+	TaskQueue_Item *h = NULL;
+	TaskQueue_Item *p = NULL;
+	if(head == NULL && tail == NULL)
+	{
+		cout << "The TaskQueue is empty!\n";
+		//mutex.Unlock();
+		return NULL;
+	}
+	else if(head == NULL || tail == NULL)
+	{
+		cout << "The TaskQueue is not in the correct format, please check!\n";
+		//mutex.Unlock();
+		return NULL;
+	}
+	h = head;
+	p = h->next;
+	head = p;
+	TaskQueue_length -= 1;
+	if(head == NULL)
+	{
+		tail = head;
+	}
+	//pthread_mutex_unlock (&mutex_ready);
+	//mutex.Unlock();
+	return h;
+}
+
+// remove num_tasks element of the TaskQueue
+long TaskQueue::remove_n_elements(long num_tasks, TaskQueue* migrateq)
+{
+        //mutex.Lock();
+        //pthread_mutex_lock (&mutex_ready);
+	//cout << "remove_n_elements: num-tasks = " << num_tasks; 
+        TaskQueue_Item *h = NULL;
+        TaskQueue_Item *p = NULL;
+        if(head == NULL && tail == NULL)
+        {
+                cout << "The TaskQueue is empty!\n";
+                //mutex.Unlock();
+                return 0;
+        }
+        else if(head == NULL || tail == NULL)
+        {
+                cout << "The TaskQueue is not in the correct format, please check!\n";
+                //mutex.Unlock();
+                return 0;
+        }
+        h = head;
+	migrateq->head = head;
+	migrateq->tail = head;
+	migrateq->TaskQueue_length = 0;
+	long count = 0;
+	while(count < num_tasks){
+		p = head;
+		head = head->next;		
+		TaskQueue_length -= 1; //cout << " " <<  count << " migrateq len = " << migrateq->TaskQueue_length;
+		migrateq->TaskQueue_length += 1; //ut << " migrateq len = " << migrateq->TaskQueue_length;
+		if(head == NULL)
+ 	        {
+			migrateq->tail = p;
+			migrateq->tail->next = NULL;
+        		tail = head;			
+			return migrateq->TaskQueue_length;
+        	}
+		count++;
+	}
+	migrateq->tail = p;
+	migrateq->tail->next = NULL;
+	//cout << " migrateq len = " << migrateq->TaskQueue_length << " count = " << count << endl;
+        return migrateq->TaskQueue_length;
+}
+*/
 

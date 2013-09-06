@@ -1374,10 +1374,10 @@ int main(int argc, char *argv[]) {
 //----------- Settings about ZHT server----------------
 // General version, work for both TCP and UDP.
 //	cout << "Use: hash-phm <port> <neighbor_list_file> <config_file>" << endl;
-	if (argc != 9) { //or 3?
+	if (argc != 11) { //or 3?
 		//fprintf(stderr, "Usage: %s [port]\n", argv[0]);
 		cout << "argc = " << argc << endl;
-		cout << "Usage: " << argv[0] << "\tserver_port_no\tneighbor_file\tconfig_file\tProtocol[TCP/UDP]\tLogging[0/1]\tnum_tasks\tprefix\tshared" << endl;
+		cout << "Usage: " << argv[0] << "\tserver_port_no\tneighbor_file\tconfig_file\tProtocol[TCP/UDP]\tUsername\tLogging[0/1]\tmax_tasks_per_package\tnum_tasks\tprefix\tshared" << endl;
 		exit(EXIT_FAILURE);
 	}
 //cout << " 1";

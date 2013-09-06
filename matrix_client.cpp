@@ -14,6 +14,7 @@ timespec start_tasks, end_tasks;
 static int cl_LOGGING = 0;
 int start_flag = 0;
 uint32_t total_num_tasks = 0;
+//uint32_t total_submitted = 0;
 
 static pthread_attr_t attr; // thread attribute
 pthread_mutex_t submit_q = PTHREAD_MUTEX_INITIALIZER;
@@ -25,14 +26,15 @@ ofstream loadfile;
 
 #define SIXTY_KILOBYTES 61440
 #define STRING_THRESHOLD SIXTY_KILOBYTES
-
 typedef deque<string> NodeList;
 map<uint32_t, NodeList> update_map;
 static uint32_t tcount = 0;
 void get_map(vector<string> &mqueue, uint32_t num_nodes) {
+        //map<uint32_t, NodeList> update_map;
+        //uint32_t num_nodes = svrclient.memberList.size();
         for(vector<string>::iterator it = mqueue.begin(); it != mqueue.end(); ++it) {
                 Package package;
-                package.ParseFromString(*it);
+                package.ParseFromString(*it); //cout << "key = " << package.virtualpath() << endl;
                 uint32_t serverid = myhash(package.virtualpath().c_str(), num_nodes);
                 string str(*it); str.append("\?");
                 if(update_map.find(serverid) == update_map.end()) {
@@ -55,10 +57,12 @@ void get_map(vector<string> &mqueue, uint32_t num_nodes) {
                         }
                 }
         }
+        //return update_map;
 }
 
 //initialize client parameters
 int MATRIXClient::init(int num_tasks, int numSleep, ZHTClient &clientRet, int log, int index) {
+	//cout << "mc: prefix = " << prefix << " shared = " << shared << endl;
 	if(set_ip(client_id))
 	{
 		printf("Could not get the IP address of this machine!\n");
@@ -66,7 +70,9 @@ int MATRIXClient::init(int num_tasks, int numSleep, ZHTClient &clientRet, int lo
 	}
 
 	total_num_tasks = num_tasks;
+        //total_submitted = num_tasks;
 
+	// string host("localhost");
 	selfindex = getSelfIndex(client_id, clientRet.memberList);
 	stringstream numSleep_ss, num_nodes_ss;
 	numSleep_ss << numSleep;
@@ -117,11 +123,15 @@ void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 	}
 
 	else if(DAG_choice == 1) { // random DAG
+		#define MIN_PER_RANK 1 // Nodes/Rank: How 'fat' the DAG should be
+        	#define MAX_PER_RANK 5
+	        #define MIN_RANKS 3    // Ranks: How 'tall' the DAG should be
+        	#define MAX_RANKS 5
 	        #define PERCENT 30     // Chance of having an Edge
 
         	srand (time (NULL));
-	        int height = floor(sqrt(num_tasks));
-        	int new_nodes = ceil(sqrt(num_tasks));
+	        int height = floor(sqrt(num_tasks));    //height = MIN_RANKS + (rand () % (MAX_RANKS - MIN_RANKS + 1));
+        	int new_nodes = ceil(sqrt(num_tasks));  //new_nodes = MIN_PER_RANK + (rand () % (MAX_PER_RANK - MIN_PER_RANK + 1));
 	        int nodes = 0;
 
         	for (int i = 0; i < height; i++) { // New nodes of 'higher' rank than all nodes generated till now
@@ -151,6 +161,8 @@ void get_adjlist(int num_tasks, AdjList &adj_list, int DAG_choice) {
 
 	else if(DAG_choice == 2) { // pipeline DAG
 		int nodes = 0;
+        	//int num_pipeline = floor(sqrt(num_tasks));
+	        //int pipeline_height = ceil(sqrt(num_tasks));
 
 		int num_pipeline = num_tasks/10;
 		int pipeline_height = 10;
@@ -268,6 +280,7 @@ int get_DAG(AdjList &adj_list, TaskDAG &dag, string clientid) {
                         int dest_vertex = exist_list[i];
 
                         // add each vertex to string
+                        //adj_ss << exist_list[i] << clientid << "\'";
 			adj_ss << exist_list[i] << clientid << "\'";
 
                         // update indegree count of each vertex in adjacency list
@@ -282,6 +295,7 @@ int get_DAG(AdjList &adj_list, TaskDAG &dag, string clientid) {
                                 value.first = indegree[dest_vertex];
                         }
                 }
+                //adj_ss << "\"";
                 string adjliststring(adj_ss.str()); // list of vertices delimited by \' with a final \"
 
                 // store info into DAG
@@ -298,6 +312,7 @@ void print_DAG(TaskDAG &dag) {
                 int vertex = it->first;
                 TaskDAG_Value value(it->second);
 		expected_notifications += value.first;
+                //cout << "Vertex = " << vertex << " Indegree = " << value.first << " AdjList = " << value.second << endl;
 		client_logfile << "Vertex = " << vertex << " Indegree = " << value.first << " AdjList = " << value.second << endl;
         }
 	cout << "expected_notifications = " << expected_notifications << endl;
@@ -318,17 +333,21 @@ TaskDAG generate_DAG(int &num_tasks, int &num_nodes, string clientid, int choice
 
 void* submit(void *args) {
 
+	//vector<string>* task_str_list = (vector<string>*)args;
 	uint32_t count = 0;
 	submit_args* thread_args = (submit_args*)args; //cout << "Thread: per_client_task = " << thread_args->per_client_task << endl;
 	while(count != thread_args->per_client_task) {
+//cout << "Thread: task_str_list empty " << thread_args->task_str_list->size() << endl;
 	while(thread_args->task_str_list->size() > 0) {
 		string str;
 		pthread_mutex_lock(&submit_q);
 		if(thread_args->task_str_list->size() > 0) {
 			str = thread_args->task_str_list->back();
+			//cout << "Thread: Task " << count << ": " << str << endl;
 			thread_args->task_str_list->pop_back();
 		}
 		else {
+			//cout << "Thread: task_str_list empty " << thread_args->task_str_list->size() << endl;
 			pthread_mutex_unlock(&submit_q);
 			continue;
 		}
@@ -342,6 +361,10 @@ void* submit(void *args) {
 }
 
 void submittasks(int selfIndex, string client_id, ZHTClient &clientRet) {
+        /*uint32_t count = task_str_list.size();
+        for(uint32_t i = 0; i < count; i++) {
+                int32_t ret = clientRet.insert(task_str_list[i]); //cout << "task " << i << " sent" << endl;
+        }*/
 	map<uint32_t, uint32_t> ret_map;
         int ret = 0;
         Package package;
@@ -391,6 +414,7 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 
 	int num_worker = clientRet.memberList.size();
         int toserver = (num_worker-1)/(selfindex+1); // Server index where the tasks will be initially submitted to the Wait queue
+	//cout << "to server = " << toserver << endl;
 
 	// Initialize a random DAG based on the number of tasks requested by client
 	// Note: The number of tasks in the generated DAG may not be actually equal to what is requested
@@ -406,6 +430,23 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 	uint64_t sub_time_ns;
 	sub_time_ns = (uint64_t)sub_time.tv_sec*1000000000 + (uint64_t)sub_time.tv_nsec;
 
+	// Arguments to be passed to submission thread:
+	// 1. Vector that holds serialized packages for each individual task, 
+	// 2. ZHT Client for network communication, and 
+	// 3. Number of tasks to be submitted
+	submit_args thread_args;
+	thread_args.task_str_list = &task_str_list;
+	thread_args.clientRet = clientRet;
+	thread_args.per_client_task = num_tasks;
+
+	// Spin the submission thread with the structure containing the above mentioned arguments
+	pthread_t submit_thread;
+	//pthread_create(&submit_thread, NULL, submit, &thread_args);
+
+	// Reserve space for the vector to hold serialized packages for each individual task
+	//task_str_list.reserve(num_tasks);
+
+	// Measure the start time for task submission into NoVoHT
 	clock_gettime(CLOCK_REALTIME, &start_tasks);
 
 	for(TaskDAG::iterator it = dag.begin(); it != dag.end(); ++it) {
@@ -421,6 +462,7 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 		taskd << value.second << ";" << "\"";
 
 		string str(taskd.str());
+		//task_str_list.push_back(taskd.str());
 
 		if(update_map.find(serverid) == update_map.end()) {
                         NodeList new_list;
@@ -441,13 +483,66 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 		}
 	}
 
+/*	// For all tasks in the DAG, package it and store it in NoVOHT
+        //for(i = 0; i < num_tasks; i++){ 
+	for(TaskDAG::iterator it = dag.begin(); it != dag.end(); ++it) {
+		int task_id = it->first;
+                TaskDAG_Value value(it->second);
+
+		stringstream task_id_ss;
+		task_id_ss << task_id << client_id; // Task ID + Client ID
+		//cout << "id = " << task_id_ss.str();
+		//cout << "numwait = " << value.first << " notlist = " << value.second << endl;
+
+		Package package;
+		package.set_virtualpath(task_id_ss.str()); // Key is task ID + client ID
+		package.set_operation(3);		   // Insert task and its decription into NoVoHT
+//		cout << "key = " << package.virtualpath();
+//		cout << " op = " << package.operation() << endl;
+//		string str1 = package.SerializeAsString(); // Serialize the package
+//cout << " str1 = " << str1 << endl;
+
+		stringstream to_index_ss;
+		to_index_ss << toserver << "\'" << "\"";
+		package.set_nodehistory(to_index_ss.str()); // History of migrations delimited by \' with a final \"
+//		cout << "nodehistory = " << package.nodehistory();
+		package.set_currnode(toserver); 	    // Current node
+//		cout << " currnode = " << package.currnode();
+		package.set_nummoves(0); 		    // Number of migrations, initially it is zero
+//		cout << " nummoves = " << package.nummoves();
+		package.set_numwait(value.first); 	    // Number of notifications to receive before it can be moved to ready queue
+//		cout << " numwait = " << package.numwait() << endl;
+		//package.set_notlist(value.second);	    // List of tasks to be notified after finishing execution
+		//cout << "notlist = " << package.notlist() << endl;
+//		string str2 = package.SerializeAsString();  // Serialize the package
+//cout << " str2 = " << str2 << endl;
+
+		stringstream package_content_ss;
+		//package_content_ss << value.second; // List of tasks to be notified after finishing execution
+		package_content_ss << "NULL"; package_content_ss << "\'"; 				// Task completion status
+		package_content_ss << task_desc; package_content_ss << "\'"; 				// Task Description
+		package_content_ss << task_id_ss.str();	package_content_ss << "\'"; 			// Task ID
+		package_content_ss << sub_time_ns; package_content_ss << "\'"; package_content_ss << "\""; // Task Submission Time
+		package_content_ss << value.second; // List of tasks to be notified after finishing execution
+		package.set_realfullpath(package_content_ss.str());
+		string str = package.SerializeAsString(); // Serialize the package
+//cout << " str = " << str << endl;
+		//pthread_mutex_lock(&submit_q);
+		// Push the serialized task into a vector which is shared by another thread that handles the submission over the network
+		task_str_list.push_back(str);
+		//pthread_mutex_unlock(&submit_q);
+       	}*/
 	clock_gettime(CLOCK_REALTIME, &end_tasks); timespec diff1 = timediff(start_tasks, end_tasks);
         cout << num_tasks << " novoht jobs created. TIME TAKEN: " << diff1.tv_sec << "  SECONDS  " << diff1.tv_nsec << "  NANOSECONDS" << endl;
 
+        //get_map(task_str_list, taskidlist, num_worker);
+
         clock_gettime(CLOCK_REALTIME, &start_tasks);
+
         submittasks(selfindex, client_id, clientRet);
+
+	//pthread_join(submit_thread, NULL); // Wait for the submission thread to finish sending the tasks over the network
 	clock_gettime(CLOCK_REALTIME, &end_tasks); // Measure the end time to insert all tasks into NoVoHT
-	
 	timespec diff = timediff(start_tasks, end_tasks); // Measure the total time to insert all tasks into NoVoHT
 	cout << num_tasks << " tasks inserted into NoVoHT" <<  endl;
 	cout << "TIME TAKEN: " << diff.tv_sec << "  SECONDS  " << diff.tv_nsec << "  NANOSECONDS" << endl;
@@ -455,7 +550,8 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 		client_logfile << num_tasks << "tasks inserted into NoVoHT" <<  endl;
 		client_logfile << "TIME TAKEN: " << diff.tv_sec << "  SECONDS  " << diff.tv_nsec << "  NANOSECONDS" << endl;
 	}
-	
+	//exit(1);
+	// Some temp parameters
 	int num_packages = 0;
 	int total_submitted1 = 0;
 	static int id = 0;
@@ -479,8 +575,10 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 			TaskDAG_Value value(it->second);
 			if(value.first > 0) {
 				alltasks.append("w"); alltasks.append("\'");
+				//cout << "task = " << task_id << " numwait = " << value.first << " w" << endl;
 			} else {
 				alltasks.append("r"); alltasks.append("\'");
+				//cout << "task = " << task_id << " numwait = " << value.first << " r" <<  endl;
 			}
 
         	        stringstream task_id_ss;
@@ -491,8 +589,11 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 		total_submitted1 = total_submitted1 + num_tasks_this_package;
 		package.set_realfullpath(alltasks);
 		string str = package.SerializeAsString();
+		//cout << "String size = " << str.size() << " str length = " << strlen(str.c_str());
 		int32_t ret = clientRet.svrtosvr(str, str.length(), toserver);
+                //int32_t ret = clientRet.svrtosvr(str, str.length(), selfindex);
 	}
+	//cout << "No. of packages = " << num_packages;
 	cout << "\tTotal Jobs submitted = " << total_submitted1 << endl;
 	clock_gettime(CLOCK_REALTIME, &end_tasks); // Measure the end time to insert all tasks into Wait queue
 	diff = timediff(start_tasks, end_tasks); // Measure the total time to insert all tasks into Wait queue
@@ -502,9 +603,12 @@ int MATRIXClient::initializeTasks(int num_tasks_req, int numSleep, int max_tasks
 		client_logfile << "Total Jobs submitted = " << total_submitted1 << endl;
 		client_logfile << "TIME TAKEN: " << diff.tv_sec << "  SECONDS  " << diff.tv_nsec << "  NANOSECONDS" << endl;
 	}
+	//exit(1);
 }
 
 //monitor the submitted tasks
+// by polling each server for its load information. If a server is idle then it will return load = -4 (queue length - num of idle cores)
+// so if every server returns load = -4 it implies that all submitted tasks are complete
 void *monitor_function(void* args) {
 
 	ZHTClient *clientRet = (ZHTClient*)args;
@@ -520,6 +624,7 @@ void *monitor_function(void* args) {
 	loadPackage.set_operation(98);
 	string endstr = loadPackage.SerializeAsString();
 
+	//int num_worker = clientRet.memberList.size();
 	int num_worker = clientRet->memberList.size();
 	int num_cores = 4;
 	int index = 0;
@@ -537,26 +642,37 @@ void *monitor_function(void* args) {
 	int32_t num_busy = 0;
 	int32_t load = 0;
 	int32_t total_busy = 0;
+	//int32_t status = 0;
 	int32_t finished = 0;
 
 	int32_t total_msg_count = 0;
 	int32_t ret = 0;
+	//sleep(60);
 
 	int min_lines = num_worker;
 	int num = num_worker - 1;
 	stringstream num_ss;
 	num_ss << num;
+	//min_lines++;
 	string filename(shared);
         filename = filename + "startinfo" + num_ss.str();
         string cmd("cat ");
         cmd = cmd + filename + " | wc -l";
         string result = executeShell(cmd);
+	//cout << cmd << " " << result << endl;
+	//cout << "client: minlines = " << min_lines << " cmd = " << cmd << " result = " << result << endl;
+	/*string filename(shared);
+	filename = filename + "start_info";
+	string cmd("wc -l ");
+	cmd = cmd + filename + " | awk {\'print $1\'}";
+	string result = executeShell(cmd);*/
 	
 	while(atoi(result.c_str()) < 1) {
 		sleep(5);
 		result = executeShell(cmd); cout << " temp result = " << result << endl;
 	} 
 	cout << "client: minlines = 1 " << " cmd = " << cmd << " result = " << result << endl;
+	//cout << "starting to monitor" << endl;
 	cout << "TIME START: " << start_tasks.tv_sec << "  SECONDS  " << start_tasks.tv_nsec << "  NANOSECONDS" << endl;
 	while(1) {
 
@@ -566,6 +682,7 @@ void *monitor_function(void* args) {
 
 		stringstream worker_load;
 		for(index = 0; index < num_worker; index++) {
+                        //int32_t queued_idle = clientRet.svrtosvr(loadstr, loadstr.length(), index);
 			queued_idle = clientRet->svrtosvr(loadstr, loadstr.length(), index);
                         queued  = queued_idle/10;
                         num_idle = queued_idle%10;   
@@ -580,7 +697,7 @@ void *monitor_function(void* args) {
 		queued_busy = total_queued + total_busy;
 		finished = total_num_tasks - queued_busy;
 		clock_gettime(CLOCK_REALTIME, &end_tasks);
-		cout << "Total busy cores " << total_busy << " Total Load on all workers = " << queued_busy << " No. of tasks finished = " << finished << " Total tasks submitted = " << total_num_tasks << endl;
+		cout << "Total busy cores " << total_busy << " Total Load on all workers = " << queued_busy << " No. of tasks finished = " << finished << " Total tasks submitted = " << total_num_tasks << endl;//" time = " << end_tasks.tv_sec << " " << end_tasks.tv_nsec << endl;
 		if (client_logfile.is_open() && cl_LOGGING) {
 			client_logfile << "Total busy cores " << total_busy << "  Total Load on all workers = " << queued_busy << " No. of tasks finished = " << finished << " Total tasks submitted = " << total_num_tasks << endl;
 		}
@@ -596,6 +713,7 @@ void *monitor_function(void* args) {
 
 	total_msg_count = 0;
 	for(index = 0; index < num_worker; index++) {
+		//clientRet.svrtosvr(endstr, endstr.length(), index);
 		ret = clientRet->svrtosvr(endstr, endstr.length(), index);
 		total_msg_count += ret;
 	}
@@ -614,12 +732,41 @@ void *monitor_function(void* args) {
 		client_logfile << "Total messages between all servers = " << total_msg_count << endl;
 
 		client_logfile.close();
+		//return 1;
 	}
 }
+
 
 pthread_t MATRIXClient::monitor(int num_tasks, ZHTClient &clientRet) {
 	pthread_t monitor_thread;
 	pthread_create(&monitor_thread, NULL, monitor_function, &clientRet);
 	return monitor_thread;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

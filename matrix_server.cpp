@@ -100,7 +100,7 @@ Worker::Worker(char *parameters[], NoVoHT *novoht) {
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	pthread_attr_setscope(&attr,PTHREAD_SCOPE_SYSTEM);
 	/* filename definitions */
-	set_dir(parameters[8],parameters[9]);
+	set_dir(parameters[9],parameters[10]);
 	file_worker_start.append(shared);	file_worker_start.append("startinfo");
 	file_task_fp.append(prefix);		file_task_fp.append("pkgs");
 	file_migrate_fp.append(prefix);		file_migrate_fp.append("log_migrate");

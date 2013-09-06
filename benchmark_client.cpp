@@ -322,8 +322,8 @@ int benchmarkALL(int numTest, int strLen) { //103+length
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 11) {
-        	cout << "Usage: " << argv[0] << "\tper_client_task\tneighborlist_file\tzht_config_file\tprotocol[TCP/UDP]\tsleep_time\tindex\tnum_tasks\tprefix\tshared\tDAG_choice" << endl;
+	if(argc != 13) {
+        	cout << "Usage: " << argv[0] << "\tper_client_task\tneighborlist_file\tzht_config_file\tprotocol[TCP/UDP]\tsleep_time\tlogging\tmax_tasks_per_package\tindex\tnum_tasks\tprefix\tshared\tDAG_choice" << endl;
                 exit(1);
         }
 	srand(getpid() + getTime_usec());
@@ -341,37 +341,50 @@ int main(int argc, char* argv[]) {
 		TCP = false;
 	}
 	int sleep_time = atoi(argv[5]);
-	int max_tasks_per_package = 1000;
-	int index = atoi(argv[6]);
-	int num_tasks = atoi(argv[7]);
-	int logging = 1;
+	int logging = atoi(argv[6]);
+	int max_tasks_per_package = atoi(argv[7]);
+	int index = atoi(argv[8]);
+	int num_tasks = atoi(argv[9]);
 	initconfig(testClient, cfgFile, memberList);
 	int num_workers = testClient.memberList.size();
-	int DAG_choice = atoi(argv[10]);
+	int DAG_choice = atoi(argv[12]);
 
-	set_dir(argv[8], argv[9]);
+	set_dir(argv[10], argv[11]);
 	//initialze the client
 	mc.init(num_tasks, sleep_time, testClient, logging, index);
 
 	//initialze the tasks
+	//mc.initializeTasks(per_client_task, sleep_time, mode, max_tasks_per_package, testClient);
+//cout << " 1 ";
 	int min_lines = num_workers;
+	//min_lines++;
 	string filename(shared);
         filename = filename + "startinfo*";
         string cmd("ls -l ");
         cmd = cmd + filename + " | wc -l";
+//cout << cmd << endl;
         string result = executeShell(cmd);
+	//cout << "bench: minlines = " << min_lines << " cmd = " << cmd << " result = " << result << endl;
+	/*string filename(shared);
+	filename = filename + "start_info";
+        string cmd("wc -l ");
+        cmd = cmd + filename + " | awk {\'print $1\'}";
+        string result = executeShell(cmd); */
 	//cout << "bench: minlines = " << min_lines << " cmd = " << cmd << " result = " << result << endl;
         while(atoi(result.c_str()) < min_lines) {
 	       sleep(2); 
 		//cout << "bench: minlines = " << min_lines << " cmd = " << cmd << " result = " << result << endl;
                result = executeShell(cmd);
         }
+	
 	//cout << "bench: minlines = " << min_lines << " cmd = " << cmd << " result = " << result << endl;
+	//mc.submitTasks(mode, testClient);
 	pthread_t monitor_thread;
 	if(index == 1) {
 		monitor_thread = mc.monitor(num_tasks, testClient);
 	}
 	mc.initializeTasks(per_client_task, sleep_time, max_tasks_per_package, testClient, DAG_choice);
+	//mc.submitTasks(mode, testClient);
 	if(index == 1){
 		pthread_join(monitor_thread, NULL);
 	}

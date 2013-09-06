@@ -69,8 +69,8 @@ If you installed Google protocol buffers c and c++ bindings to customized direct
 
 -------------------RUN THE BENCHMARK-------------------
 To run benchmark:
-1. ./server 50000 neighbor zht.cfg TCP logging max_tasks_per_package num_tasks prefix shared
-2. ./client per_client_task neighbor zht.cfg TCP sleep_time max_tasks_per_package client_index num_tasks prefix shared DAG_choice
+1. ./server 50000 neighbor zht.cfg TCP userName logging max_tasks_per_package num_tasks prefix shared
+2. ./client per_client_task neighbor zht.cfg TCP sleep_time logging max_tasks_per_package client_index num_tasks prefix shared DAG_choice
 
 The sequence of arguments should be maintained.
 
@@ -80,8 +80,10 @@ Server:
 neighbor is the file that contains neighbored nodes in DHT overlay network,
 zht.cfg is to config other parameters of ZHT,
 TCP is to use tcp protocol, instead, UDP is used,
-logging is the flag to turn ON/OFF logging information
+userName is auxillary parameter used by ZHT,
+logging is the flag to turn ON/OFF logging information,
 max_tasks_per_package is the number of tasks to bundle in single package before submitting to MATRIX server; this is there since there is a limit on message size than can be handled,
+num_tasks is the total number of tasks submitted by the client,
 prefix is the path to logging directory to be used by every instance of MATRIX server; it is private to every instance,
 shared is the path to logging directory that is shared by all MATRIX servers
 
